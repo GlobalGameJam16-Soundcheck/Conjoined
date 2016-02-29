@@ -8,6 +8,9 @@ public class playerControler : MonoBehaviour {
     SpriteRenderer mySprite;
     bool canJump;
     public float jumpPower = 40.0f;
+    public float vaultVPower = 50.0f;
+    public float vaultHPower = 5.0f;
+    public float vaultTollerance = 2.0f;
     public float runSpeed = 2.0f;
     public float maxRunSpeed = 10.0f;
     float k_GroundedRadius = 0.3f;
@@ -24,6 +27,7 @@ public class playerControler : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        //print(myRig.velocity.x);
         if(myRig.velocity.x > 0)
         {
             mySprite.flipX = true;
@@ -47,11 +51,41 @@ public class playerControler : MonoBehaviour {
                 canJump = false;
             }
         }
+
+        if(myRig.velocity.x >= maxRunSpeed - vaultTollerance || myRig.velocity.x <=  -maxRunSpeed + vaultTollerance)
+        {
+            //mySprite.color = new Color(255, 0, 0);
+        }
+        else
+        {
+            //mySprite.color = new Color(255, 255, 255);
+        }
+
+        if (Input.GetKeyDown("s"))
+        {
+            if (canJump)
+            {
+                if (myRig.velocity.x > maxRunSpeed - vaultTollerance)
+                {
+                    myRig.velocity = new Vector2(myRig.velocity.x + vaultHPower, vaultVPower);
+                    canJump = false;
+                }
+                if (myRig.velocity.x < -maxRunSpeed + vaultTollerance)
+                {
+                    myRig.velocity = new Vector2(myRig.velocity.x - vaultHPower, vaultVPower);
+                    canJump = false;
+                }
+            }
+        }
         if (Input.GetKey("left"))
         {
             if (myRig.velocity.x > -maxRunSpeed)
             {
                 myRig.velocity = new Vector2(myRig.velocity.x - runSpeed, myRig.velocity.y);
+            }
+            if (myRig.velocity.x <= -maxRunSpeed)
+            {
+                myRig.velocity = new Vector2(-maxRunSpeed, myRig.velocity.y);
             }
         }
         if (Input.GetKey("right"))
@@ -59,6 +93,21 @@ public class playerControler : MonoBehaviour {
             if (myRig.velocity.x < maxRunSpeed)
             {
                 myRig.velocity = new Vector2(myRig.velocity.x + runSpeed, myRig.velocity.y);
+            }
+            if (myRig.velocity.x >= maxRunSpeed)
+            {
+                myRig.velocity = new Vector2(maxRunSpeed, myRig.velocity.y);
+            }
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.tag == "targetPlatform")
+        {
+            if (Input.GetKey("space"))
+            {
+                other.GetComponent<platformBehavoir>().active = true;
             }
         }
     }
