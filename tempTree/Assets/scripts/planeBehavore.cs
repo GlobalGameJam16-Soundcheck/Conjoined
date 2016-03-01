@@ -25,6 +25,28 @@ public class planeBehavore : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if(transform.position.x > myStart.position.x)
+        {
+            if (target.GetComponent<platformBehavoir>().active)
+            {
+                mySprite.flipX = true;
+            }
+            else
+            {
+                mySprite.flipX = false;
+            }
+        }
+        else
+        {
+            if (target.GetComponent<platformBehavoir>().active)
+            {
+                mySprite.flipX = false;
+            }
+            else
+            {
+                mySprite.flipX = true;
+            }
+        }
         if (target.GetComponent<platformBehavoir>().active)
         {
             transform.position = Vector2.MoveTowards(new Vector2(transform.position.x, transform.position.y), target.transform.position, 3 * Time.deltaTime);

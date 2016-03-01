@@ -1,0 +1,106 @@
+fileFormatVersion: 2
+guid: e8704e785da436b4da2845d9c042ba6f
+timeCreated: 1456870570
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: idle
+    21300002: moveLeft
+    21300004: Movement-Spritesheet_0
+    21300006: moveRight
+    21300008: jump
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: 0
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 10
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: idle
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 73
+        width: 20
+        height: 28
+      alignment: 9
+      pivot: {x: 0.7166449, y: 0.44762447}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+    - name: moveLeft
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 72
+        width: 23
+        height: 24
+      alignment: 9
+      pivot: {x: 0.34349424, y: 0.48889032}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+    - name: moveRight
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 42
+        width: 23
+        height: 24
+      alignment: 9
+      pivot: {x: 0.6072358, y: 0.4694476}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+    - name: jump
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 11
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.63748646, y: 0.39556617}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

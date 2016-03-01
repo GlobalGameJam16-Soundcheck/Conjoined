@@ -16,6 +16,10 @@ public class playerControler : MonoBehaviour {
     float k_GroundedRadius = 0.3f;
     Transform m_GroundCheck;
     public float hFirction = 0.02f;
+    public Sprite jumpSprite;
+    public Sprite rightSprite;
+    public Sprite leftSprite;
+    public Sprite idleSprite;
 
     // Use this for initialization
     void Awake () {
@@ -30,18 +34,32 @@ public class playerControler : MonoBehaviour {
         //print(myRig.velocity.x);
         if(myRig.velocity.x > 0)
         {
-            mySprite.flipX = true;
+            mySprite.sprite = rightSprite;
         }
         if(myRig.velocity.x < 0)
         {
-            mySprite.flipX = false;
+            mySprite.sprite = leftSprite;
+        }
+        if(myRig.velocity.y > 0)
+        {
+            mySprite.sprite = jumpSprite;
+        }
+        if(myRig.velocity.x == 0 && myRig.velocity.y == 0)
+        {
+            mySprite.sprite = idleSprite;
         }
         myRig.velocity = new Vector2(myRig.velocity.x * hFirction, myRig.velocity.y);
         Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, LayerMask.NameToLayer("Platform"));
         for (int i = 0; i < colliders.Length; i++)
         {
             if (colliders[i].gameObject != gameObject)
+            {
                 canJump = true;
+            }
+            else
+            {
+                canJump = false;
+            }
         }
         if (Input.GetKeyDown("up"))
         {
@@ -52,31 +70,6 @@ public class playerControler : MonoBehaviour {
             }
         }
 
-        if(myRig.velocity.x >= maxRunSpeed - vaultTollerance || myRig.velocity.x <=  -maxRunSpeed + vaultTollerance)
-        {
-            //mySprite.color = new Color(255, 0, 0);
-        }
-        else
-        {
-            //mySprite.color = new Color(255, 255, 255);
-        }
-
-        if (Input.GetKeyDown("s"))
-        {
-            if (canJump)
-            {
-                if (myRig.velocity.x > maxRunSpeed - vaultTollerance)
-                {
-                    myRig.velocity = new Vector2(myRig.velocity.x + vaultHPower, vaultVPower);
-                    canJump = false;
-                }
-                if (myRig.velocity.x < -maxRunSpeed + vaultTollerance)
-                {
-                    myRig.velocity = new Vector2(myRig.velocity.x - vaultHPower, vaultVPower);
-                    canJump = false;
-                }
-            }
-        }
         if (Input.GetKey("left"))
         {
             if (myRig.velocity.x > -maxRunSpeed)
@@ -101,13 +94,41 @@ public class playerControler : MonoBehaviour {
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+
+    void OnTriggerStay2D(Collider2D other)
     {
         if (other.tag == "targetPlatform")
         {
-            if (Input.GetKey("space"))
+            if (Input.GetKeyDown("s"))
             {
                 other.GetComponent<platformBehavoir>().active = true;
+            }
+        }
+        if (other.tag == "post")
+        {
+            if (other.gameObject.GetComponent<post>().active)
+            {
+                if (other.gameObject.GetComponent<post>().vertical)
+                {
+                    myRig.velocity = new Vector2(myRig.velocity.x, myRig.velocity.y * -1.2f);
+                }
+                else
+                {
+                    myRig.velocity = new Vector2(myRig.velocity.x *-1.2f, myRig.velocity.y);
+                }
+                other.gameObject.GetComponent<post>().active = false;
+                if (Input.GetKeyDown("s"))
+                {
+                    if (other.gameObject.GetComponent<post>().vertical)
+                    {
+                        myRig.velocity = new Vector2(myRig.velocity.x, myRig.velocity.y * -1.2f);
+                    }
+                    else
+                    {
+                        myRig.velocity = new Vector2(myRig.velocity.x * -1.2f, myRig.velocity.y);
+                    }
+                    other.gameObject.GetComponent<post>().active = false;
+                }
             }
         }
     }
