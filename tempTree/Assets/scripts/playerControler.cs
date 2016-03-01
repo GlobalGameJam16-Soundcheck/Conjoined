@@ -20,12 +20,16 @@ public class playerControler : MonoBehaviour {
     public Sprite rightSprite;
     public Sprite leftSprite;
     public Sprite idleSprite;
+    public AudioClip jumpSound;
+    public AudioClip fallSound;
+    AudioSource myAudio;
 
     // Use this for initialization
     void Awake () {
         myRig = gameObject.GetComponent<Rigidbody2D>();
         myCollider = gameObject.GetComponent<Collider2D>();
         mySprite = gameObject.GetComponent<SpriteRenderer>();
+        myAudio = gameObject.GetComponent<AudioSource>();
         m_GroundCheck = transform.Find("GroundCheck");
     }
 	
@@ -65,6 +69,8 @@ public class playerControler : MonoBehaviour {
         {
             if (canJump)
             {
+                myAudio.clip = jumpSound;
+                myAudio.Play();
                 myRig.velocity = new Vector2(myRig.velocity.x, jumpPower);
                 canJump = false;
             }

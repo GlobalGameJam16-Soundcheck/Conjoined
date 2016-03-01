@@ -11,6 +11,8 @@ public class planeBehavore : MonoBehaviour {
     public Transform myStart;
     Rigidbody2D myRig;
     SpriteRenderer mySprite;
+    public AudioClip explotionSound;
+    AudioSource myAudio;
 
     // Use this for initialization
     void Awake () {
@@ -20,6 +22,7 @@ public class planeBehavore : MonoBehaviour {
         myCollider = gameObject.GetComponent<Collider2D>();
         myRig = gameObject.GetComponent<Rigidbody2D>();
         mySprite = gameObject.GetComponent<SpriteRenderer>();
+        myAudio = gameObject.GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -61,10 +64,14 @@ public class planeBehavore : MonoBehaviour {
     {
         if (other.name == "Player")
         {
-            Destroy(gameObject);
+            myAudio.clip = explotionSound;
+            myAudio.Play();
+            transform.position = new Vector2(-1000, -1000);
+            Destroy(gameObject, 2);
         }
         if (other.name == target.name)
         {
+            other.GetComponent<platformBehavoir>().playDeactivateSound();
             other.GetComponent<platformBehavoir>().active = false;
         }
     }
