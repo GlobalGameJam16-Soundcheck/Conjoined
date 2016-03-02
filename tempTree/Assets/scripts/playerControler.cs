@@ -105,7 +105,7 @@ public class playerControler : MonoBehaviour {
     {
         if (other.tag == "targetPlatform")
         {
-            if (Input.GetKeyDown("s"))
+            if (Input.GetKeyDown("space"))
             {
                 other.GetComponent<platformBehavoir>().active = true;
             }
@@ -123,7 +123,7 @@ public class playerControler : MonoBehaviour {
                     myRig.velocity = new Vector2(myRig.velocity.x *-1.2f, myRig.velocity.y);
                 }
                 other.gameObject.GetComponent<post>().active = false;
-                if (Input.GetKeyDown("s"))
+                if (Input.GetKeyDown("space"))
                 {
                     if (other.gameObject.GetComponent<post>().vertical)
                     {
