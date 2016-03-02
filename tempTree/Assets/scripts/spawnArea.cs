@@ -14,8 +14,11 @@ public class spawnArea : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
-	}
+        if (Input.GetKeyDown("`"))
+        {
+            time = 1.0f;
+        }
+    }
 
     void spawn()
     {
@@ -23,5 +26,6 @@ public class spawnArea : MonoBehaviour {
         float yPos = Random.Range(transform.position.y - transform.localScale.y / 4, transform.position.y + transform.localScale.y / 4);
         GameObject thingIJustSpawned = Instantiate(thingToSpawn, new Vector2(xPos,yPos), Quaternion.identity) as GameObject;
         thingIJustSpawned.GetComponent<planeBehavore>().myStart = transform;
+        time += 0.005f;
     }
 }

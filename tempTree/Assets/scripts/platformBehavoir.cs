@@ -18,6 +18,10 @@ public class platformBehavoir : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if (Input.GetKeyDown("1"))
+        {
+            active = true;
+        }
         if (active)
         {
             myCollider.isTrigger = false;

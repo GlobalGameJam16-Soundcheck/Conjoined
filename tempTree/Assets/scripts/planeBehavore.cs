@@ -28,7 +28,7 @@ public class planeBehavore : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if(transform.position.x > myStart.position.x)
+        if (transform.position.x > myStart.position.x)
         {
             if (target.GetComponent<platformBehavoir>().active)
             {

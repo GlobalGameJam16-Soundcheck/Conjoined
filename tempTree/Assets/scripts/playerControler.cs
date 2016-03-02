@@ -116,11 +116,11 @@ public class playerControler : MonoBehaviour {
             {
                 if (other.gameObject.GetComponent<post>().vertical)
                 {
-                    myRig.velocity = new Vector2(myRig.velocity.x, myRig.velocity.y * -1.2f);
+                    myRig.velocity = new Vector2(myRig.velocity.x, myRig.velocity.y * -1.3f);
                 }
                 else
                 {
-                    myRig.velocity = new Vector2(myRig.velocity.x *-1.2f, myRig.velocity.y);
+                    myRig.velocity = new Vector2(myRig.velocity.x *-1.3f, myRig.velocity.y);
                 }
                 other.gameObject.GetComponent<post>().active = false;
                 if (Input.GetKeyDown("space"))
