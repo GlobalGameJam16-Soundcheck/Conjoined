@@ -13,6 +13,9 @@ public class planeBehavore : MonoBehaviour {
     SpriteRenderer mySprite;
     public AudioClip explotionSound;
     AudioSource myAudio;
+	public int damage; //when fireballs hit player, how much does this hurt the player?
+
+	private bool targetHit;
 
     // Use this for initialization
     void Awake () {
@@ -23,6 +26,7 @@ public class planeBehavore : MonoBehaviour {
         myRig = gameObject.GetComponent<Rigidbody2D>();
         mySprite = gameObject.GetComponent<SpriteRenderer>();
         myAudio = gameObject.GetComponent<AudioSource>();
+		targetHit = false;
     }
 
     // Update is called once per frame
@@ -30,7 +34,7 @@ public class planeBehavore : MonoBehaviour {
     {
         if (transform.position.x > myStart.position.x)
         {
-            if (target.GetComponent<platformBehavoir>().active)
+			if (!targetHit)
             {
                 mySprite.flipX = true;
             }
@@ -41,7 +45,7 @@ public class planeBehavore : MonoBehaviour {
         }
         else
         {
-            if (target.GetComponent<platformBehavoir>().active)
+			if (!targetHit)
             {
                 mySprite.flipX = false;
             }
@@ -50,7 +54,7 @@ public class planeBehavore : MonoBehaviour {
                 mySprite.flipX = true;
             }
         }
-        if (target.GetComponent<platformBehavoir>().active)
+		if (!targetHit)
         {
             transform.position = Vector2.MoveTowards(new Vector2(transform.position.x, transform.position.y), target.transform.position, 3 * Time.deltaTime);
         }
@@ -68,11 +72,14 @@ public class planeBehavore : MonoBehaviour {
             myAudio.Play();
             transform.position = new Vector2(-1000, -1000);
             Destroy(gameObject, 2);
+			other.GetComponent<playerControler> ().getHit (damage);
         }
         if (other.name == target.name)
         {
-            other.GetComponent<platformBehavoir>().playDeactivateSound();
-            other.GetComponent<platformBehavoir>().active = false;
+			targetHit = true;
+			Debug.Log ("target hit");
+//            other.GetComponent<platformBehavoir>().playDeactivateSound();
+//            other.GetComponent<platformBehavoir>().active = false;
         }
     }
 }

@@ -5,7 +5,7 @@ public class post : MonoBehaviour {
 
     public bool active = true;
     bool reloading = false;
-    public float reloadTime = 1;
+    public float reloadTime;
     SpriteRenderer mySprite;
     public bool vertical = false;
 
