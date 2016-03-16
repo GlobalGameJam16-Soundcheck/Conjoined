@@ -32,7 +32,9 @@ public class playerControler : MonoBehaviour {
 	private float camMoveHi;
 	private float camMoveLo;
 	public int toggleValue { get; set; }
-	public Color[] toggleItemColors;
+//	public Color[] toggleItemColors;
+	private Color origColor;
+	public GameObject[] togglePlatforms;
 
     // Use this for initialization
     void Awake () {
@@ -44,8 +46,9 @@ public class playerControler : MonoBehaviour {
 		onPlatform = false;
 		debugging = true;
 		CamCamera = Cam.GetComponent<Camera> ();
-		toggleValue = 0;
-		toggleItemColors [0] = mySprite.color;
+		toggleValue = -1;
+//		toggleItemColors [0] = mySprite.color;
+		origColor = mySprite.color;
     }
 	
 	// Update is called once per frame
@@ -204,14 +207,27 @@ public class playerControler : MonoBehaviour {
 	}
 
 	//used by toggleOrbs
-	public void grabOrb(int val){ //fixme should there be a timer for all toggleValues?
+	public void grabOrb(int val, Color color){ //fixme should there be a timer for all toggleValues?
 		toggleValue = val;
-		mySprite.color = toggleItemColors [toggleValue];
+//		mySprite.color = toggleItemColors [toggleValue];
+		mySprite.color = color;
+		for (int i = 0; i < togglePlatforms.Length; i++) {
+			if (i == val) {
+				foreach (Transform togglePlat in togglePlatforms[val].transform) {
+					togglePlat.GetComponent<togglePlatformBehavior> ().setActive ();
+				}
+			} else {
+				foreach (Transform togglePlat in togglePlatforms[val].transform) {
+					togglePlat.GetComponent<togglePlatformBehavior> ().setInactive ();
+				}
+			}
+		}
 	}
 
 	public void resetToggleValue(){
-		toggleValue = 0;
-		mySprite.color = toggleItemColors [toggleValue];
+		toggleValue = -1;
+//		mySprite.color = toggleItemColors [toggleValue];
+		mySprite.color = origColor;
 	}
 
 }
