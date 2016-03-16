@@ -50,7 +50,8 @@ public class playerControler : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		checkCamPos ();
+        //checkCamPos ();
+        CamCamera.transform.position = new Vector3(CamCamera.transform.position.x, Mathf.Lerp(CamCamera.transform.position.y, transform.position.y + 5.0f, 0.75f), CamCamera.transform.position.z);
 		if (health > 0 || debugging) {
 			//print(myRig.velocity.x);
 			changeSprite();
