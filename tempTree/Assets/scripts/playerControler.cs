@@ -35,6 +35,7 @@ public class playerControler : MonoBehaviour {
 //	public Color[] toggleItemColors;
 	private Color origColor;
 	public GameObject[] togglePlatforms;
+	private bool lastTouchedPost = false;
 
     // Use this for initialization
     void Awake () {
@@ -142,12 +143,15 @@ public class playerControler : MonoBehaviour {
 	void OnCollisionStay2D(Collision2D other){
 //		Debug.Log ("collStay");
 		if (other.gameObject.tag == "targetPlatform") {
+			lastTouchedPost = false;
 //			platformBehavoir platScript = other.gameObject.GetComponent<platformBehavoir> ();
-			togglePlatformBehavior platScript = other.gameObject.GetComponent<togglePlatformBehavior>();
-			if (Input.GetKey("down") || Input.GetKey("s")){
+			togglePlatformBehavior platScript = other.gameObject.GetComponent<togglePlatformBehavior> ();
+			if (Input.GetKey ("down") || Input.GetKey ("s")) {
 				platScript.letPlayerFallThrough ();
 				//fixme play fall through animation?
 			}
+		} else if (other.gameObject.tag == "bottomEdge") {
+			lastTouchedPost = false;
 		}
 	}
 
@@ -166,29 +170,22 @@ public class playerControler : MonoBehaviour {
 //        }
         if (other.tag == "post")
         {
+			post postScript = other.gameObject.GetComponent<post> ();
+			float magnitude = -2f;
             if (other.gameObject.GetComponent<post>().active)
             {
-                if (other.gameObject.GetComponent<post>().vertical)
-                {
-                    myRig.velocity = new Vector2(myRig.velocity.x, myRig.velocity.y * -1.3f);
-                }
-                else
-                {
-                    myRig.velocity = new Vector2(myRig.velocity.x *-1.3f, myRig.velocity.y);
-                }
-                other.gameObject.GetComponent<post>().active = false;
-                if (Input.GetKeyDown("space"))
-                {
-                    if (other.gameObject.GetComponent<post>().vertical)
-                    {
-                        myRig.velocity = new Vector2(myRig.velocity.x, myRig.velocity.y * -1.2f);
-                    }
-                    else
-                    {
-                        myRig.velocity = new Vector2(myRig.velocity.x * -1.2f, myRig.velocity.y);
-                    }
-                    other.gameObject.GetComponent<post>().active = false;
-                }
+				if (!lastTouchedPost) {
+					magnitude = -2f;
+				} else {
+					magnitude = -1f;
+				}
+				if (other.gameObject.GetComponent<post> ().vertical) {
+					myRig.velocity = new Vector2 (myRig.velocity.x, myRig.velocity.y * magnitude);
+				} else {
+					myRig.velocity = new Vector2 (myRig.velocity.x * magnitude, myRig.velocity.y);
+				}
+				other.gameObject.GetComponent<post> ().active = false;
+				lastTouchedPost = true;
             }
         }
     }

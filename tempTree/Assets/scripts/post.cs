@@ -36,4 +36,5 @@ public class post : MonoBehaviour {
         active = true;
         reloading = false;
     }
+
 }
