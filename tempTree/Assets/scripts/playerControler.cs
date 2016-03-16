@@ -60,7 +60,7 @@ public class playerControler : MonoBehaviour {
 			changeSprite();
 			myRig.velocity = new Vector2 (myRig.velocity.x * hFirction, myRig.velocity.y);
 			Collider2D[] colliders = Physics2D.OverlapCircleAll (m_GroundCheck.position, 
-				                               k_GroundedRadius, LayerMask.NameToLayer ("Platform"));
+				                               k_GroundedRadius, 1 << LayerMask.NameToLayer ("Platforms"));
 			for (int i = 0; i < colliders.Length; i++) {
 				if (colliders [i].gameObject != gameObject) {
 					canJump = true;
@@ -142,8 +142,8 @@ public class playerControler : MonoBehaviour {
 	void OnCollisionStay2D(Collision2D other){
 //		Debug.Log ("collStay");
 		if (other.gameObject.tag == "targetPlatform") {
-			Debug.Log ("on plat");
-			platformBehavoir platScript = other.gameObject.GetComponent<platformBehavoir> ();
+//			platformBehavoir platScript = other.gameObject.GetComponent<platformBehavoir> ();
+			togglePlatformBehavior platScript = other.gameObject.GetComponent<togglePlatformBehavior>();
 			if (Input.GetKey("down") || Input.GetKey("s")){
 				platScript.letPlayerFallThrough ();
 				//fixme play fall through animation?
@@ -213,11 +213,13 @@ public class playerControler : MonoBehaviour {
 		mySprite.color = color;
 		for (int i = 0; i < togglePlatforms.Length; i++) {
 			if (i == val) {
-				foreach (Transform togglePlat in togglePlatforms[val].transform) {
+				Debug.Log ("i is val: " + i);
+				foreach (Transform togglePlat in togglePlatforms[i].transform) {
 					togglePlat.GetComponent<togglePlatformBehavior> ().setActive ();
 				}
 			} else {
-				foreach (Transform togglePlat in togglePlatforms[val].transform) {
+				Debug.Log ("i is not val: " + i);
+				foreach (Transform togglePlat in togglePlatforms[i].transform) {
 					togglePlat.GetComponent<togglePlatformBehavior> ().setInactive ();
 				}
 			}

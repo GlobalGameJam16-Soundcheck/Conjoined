@@ -10,6 +10,7 @@ public class togglePlatformBehavior : MonoBehaviour {
 	private bool playerFallingThrough;
 	private float timer;
 	private float fallTime;
+	public bool nonTogglePlat;
 //	public int value;
 
 	// Use this for initialization
@@ -20,6 +21,7 @@ public class togglePlatformBehavior : MonoBehaviour {
 		fallTime = 0.25f;
 		pe2d = GetComponent<PlatformEffector2D> ();
 		playerLayer = (1 << LayerMask.NameToLayer ("Player"));
+		if (!nonTogglePlat) setInactive ();
 	}
 	
 	// Update is called once per frame
@@ -37,12 +39,12 @@ public class togglePlatformBehavior : MonoBehaviour {
 
 	public void setActive(){
 		mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b, 1.0f);
-		pe2d.colliderMask = ~pe2d.colliderMask;
+		pe2d.colliderMask = -1;
 	}
 
 	public void setInactive(){
 		mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b, 0.2f);
-		pe2d.colliderMask = ~pe2d.colliderMask;
+		pe2d.colliderMask = 0;
 	}
 
 	public void letPlayerFallThrough(){

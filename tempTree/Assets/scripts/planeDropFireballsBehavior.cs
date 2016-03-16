@@ -30,9 +30,7 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
-		Debug.Log ("collided");
 		if (other.gameObject.tag == "sideEdge") {
-			Debug.Log ("side edge hit");
 			mySprite.flipX = !mySprite.flipX;
 			setDirectionAndVelo ();
 		}
