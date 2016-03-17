@@ -36,6 +36,7 @@ public class playerControler : MonoBehaviour {
 	private Color origColor;
 	public GameObject[] togglePlatforms;
 	private bool lastTouchedPost = false;
+	public float origPostMagnitude;
 
     // Use this for initialization
     void Awake () {
@@ -124,20 +125,30 @@ public class playerControler : MonoBehaviour {
 
 	private void changeSprite(){
 		//fixme only do this if damage animation is not playing
-		if (myRig.velocity.x > 0) {
+		float epsilon = 0.0005f;
+		if (myRig.velocity.x > epsilon) {
 			mySprite.sprite = rightSprite;
-		}
-		else if (myRig.velocity.x < 0) {
+		} else if (myRig.velocity.x < -1f * epsilon) {
 			mySprite.sprite = leftSprite;
 		}
-		if (myRig.velocity.y > 0) {
+		if (myRig.velocity.y > epsilon) {
 			mySprite.sprite = jumpSprite;
-		} else if (myRig.velocity.y < 0 && myRig.velocity.x == 0) {
-			mySprite.sprite = jumpSprite;
+		} else if (myRig.velocity.y < -1f * epsilon && Mathf.Abs (myRig.velocity.x) <= epsilon) {
+			mySprite.sprite = jumpSprite; //fixme fall sprite?
 		}
-		if (myRig.velocity.x == 0 && myRig.velocity.y == 0) {
+		if (Mathf.Abs (myRig.velocity.x) <= epsilon && Mathf.Abs (myRig.velocity.y) <= epsilon){
 			mySprite.sprite = idleSprite;
 		}
+
+
+//		if (myRig.velocity.y > 0) {
+//			mySprite.sprite = jumpSprite;
+//		} else if (myRig.velocity.y < 0 && myRig.velocity.x == 0) {
+//			mySprite.sprite = jumpSprite;
+//		}
+//		if (myRig.velocity.x == 0 && myRig.velocity.y == 0) {
+//			mySprite.sprite = idleSprite;
+//		}
 	}
 
 	void OnCollisionStay2D(Collision2D other){
@@ -171,20 +182,20 @@ public class playerControler : MonoBehaviour {
         if (other.tag == "post")
         {
 			post postScript = other.gameObject.GetComponent<post> ();
-			float magnitude = -2f;
-            if (other.gameObject.GetComponent<post>().active)
+			float magnitude = origPostMagnitude;
+			if (postScript.active)
             {
 				if (!lastTouchedPost) {
-					magnitude = -2f;
+					magnitude = origPostMagnitude;
 				} else {
 					magnitude = -1f;
 				}
-				if (other.gameObject.GetComponent<post> ().vertical) {
+				if (postScript.vertical) {
 					myRig.velocity = new Vector2 (myRig.velocity.x, myRig.velocity.y * magnitude);
 				} else {
 					myRig.velocity = new Vector2 (myRig.velocity.x * magnitude, myRig.velocity.y);
 				}
-				other.gameObject.GetComponent<post> ().active = false;
+				postScript.active = false;
 				lastTouchedPost = true;
             }
         }
