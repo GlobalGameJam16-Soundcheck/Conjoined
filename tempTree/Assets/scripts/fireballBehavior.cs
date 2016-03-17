@@ -38,7 +38,7 @@ public class fireballBehavior : MonoBehaviour {
 //			myRig.AddForce (forceVector, ForceMode2D.Impulse);
 			addXYForce(15f, yForce);
 			lastTouchedPost = false;
-		}
+		} 
 	}
 
 	private void getDestroyed(){

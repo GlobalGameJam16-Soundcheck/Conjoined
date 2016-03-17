@@ -63,6 +63,9 @@ public class playerControler : MonoBehaviour {
 			myRig.velocity = new Vector2 (myRig.velocity.x * hFirction, myRig.velocity.y);
 			Collider2D[] colliders = Physics2D.OverlapCircleAll (m_GroundCheck.position, 
 				                               k_GroundedRadius, 1 << LayerMask.NameToLayer ("Platforms"));
+			if (colliders.Length <= 1) {
+				canJump = false; //colliding only with main body
+			}
 			for (int i = 0; i < colliders.Length; i++) {
 				if (colliders [i].gameObject != gameObject) {
 					canJump = true;
