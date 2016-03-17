@@ -7,27 +7,27 @@ public class fireballBehavior : MonoBehaviour {
 	private bool lastTouchedPost;
 	private Rigidbody2D myRig;
 	public float origPostMagnitude;
+	public float slowerPostMag;
 
 	// Use this for initialization
 	public void justSpawned () {
 		lastTouchedPost = false;
 		myRig = GetComponent<Rigidbody2D> ();
-		addXForce ();
+		addXForce (30f);
 	}
 
 	void OnCollisionEnter2D(Collision2D other){
 		//fixme maybe need a destroying animation or particle effects
-		float destroyDelay = 0.1f;
 		if (other.gameObject.tag == "player") {
 			Debug.Log ("hitting player");
 			other.gameObject.GetComponent<playerControler> ().getHit (damage);
 			Debug.Log ("get destroyed");
-			Destroy(gameObject, destroyDelay);
+			getDestroyed ();
 			lastTouchedPost = false;
 		} else if (other.gameObject.tag == "bottomEdge") {
 //				Debug.Log ("hit the bottom get destroyed");
 			lastTouchedPost = false;
-			Destroy(gameObject, destroyDelay);
+			getDestroyed ();
 		} else if (other.gameObject.tag == "targetPlatform") {
 			Debug.Log ("hitting platform");
 //			float yForce = Random.Range (20f, 30f);
@@ -36,8 +36,15 @@ public class fireballBehavior : MonoBehaviour {
 //			}
 //			Vector2 forceVector = new Vector2 (Random.Range (-20f, 20f), yForce);
 //			myRig.AddForce (forceVector, ForceMode2D.Impulse);
+			addXForce(10f);
 			lastTouchedPost = false;
 		}
+	}
+
+	private void getDestroyed(){
+		float destroyDelay = 2f;
+		Destroy(gameObject, destroyDelay);
+		transform.position = new Vector2 (transform.position.x * 100f, transform.position.y);
 	}
 
 	void OnTriggerStay2D(Collider2D other){
@@ -49,7 +56,7 @@ public class fireballBehavior : MonoBehaviour {
 				if (!lastTouchedPost) {
 					magnitude = origPostMagnitude;
 				} else {
-					magnitude = -0.75f;
+					magnitude = slowerPostMag;
 					Debug.Log ("lower magnitude");
 				}
 				if (other.gameObject.GetComponent<post> ().vertical) {
@@ -59,13 +66,13 @@ public class fireballBehavior : MonoBehaviour {
 				}
 				postScript.active = false;
 				lastTouchedPost = true;
-				addXForce ();
+				addXForce (20f);
 			}
 		}
 	}
 
-	public void addXForce(){
-		Vector2 forceVector = new Vector2 (Random.Range (-20f, 20f), 0f);
+	public void addXForce(float xForce){
+		Vector2 forceVector = new Vector2 (Random.Range (-1 * xForce, xForce), 0f);
 		myRig.AddForce (forceVector, ForceMode2D.Impulse);
 	}
 
