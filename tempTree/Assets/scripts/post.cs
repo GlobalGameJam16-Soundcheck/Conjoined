@@ -8,10 +8,15 @@ public class post : MonoBehaviour {
     public float reloadTime;
     SpriteRenderer mySprite;
     public bool vertical = false;
+	public GameObject solidWhite;
+	private SpriteRenderer solidWhiteSprite;
+	private float solidWhiteAlpha;
 
 	// Use this for initialization
 	void Start () {
         mySprite = gameObject.GetComponent<SpriteRenderer>();
+		solidWhiteSprite = solidWhite.GetComponent<SpriteRenderer> ();
+		solidWhiteAlpha = solidWhiteSprite.color.a;
 	}
 	
 	// Update is called once per frame
@@ -24,10 +29,13 @@ public class post : MonoBehaviour {
         if (active)
         {
             mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b);
+			solidWhiteSprite.color = new Color(solidWhiteSprite.color.r, solidWhiteSprite.color.g, solidWhiteSprite.color.b, solidWhiteAlpha);
         }
         else
         {
-            mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b, 0.5f);
+			mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b, 0.5f);
+			solidWhiteSprite.color = new Color(solidWhiteSprite.color.r, solidWhiteSprite.color.g, solidWhiteSprite.color.b, solidWhiteAlpha * 0.5f);
+
         }
 	}
 
