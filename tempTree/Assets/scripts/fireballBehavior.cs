@@ -30,12 +30,12 @@ public class fireballBehavior : MonoBehaviour {
 			Destroy(gameObject, destroyDelay);
 		} else if (other.gameObject.tag == "targetPlatform") {
 			Debug.Log ("hitting platform");
-			float yForce = Random.Range (20f, 30f);
-			if (myRig.velocity.y > 0f) {
-				yForce = 0f;
-			}
-			Vector2 forceVector = new Vector2 (Random.Range (-20f, 20f), yForce);
-			myRig.AddForce (forceVector, ForceMode2D.Impulse);
+//			float yForce = Random.Range (20f, 30f);
+//			if (myRig.velocity.y > 0f) {
+//				yForce = 0f;
+//			}
+//			Vector2 forceVector = new Vector2 (Random.Range (-20f, 20f), yForce);
+//			myRig.AddForce (forceVector, ForceMode2D.Impulse);
 			lastTouchedPost = false;
 		}
 	}
