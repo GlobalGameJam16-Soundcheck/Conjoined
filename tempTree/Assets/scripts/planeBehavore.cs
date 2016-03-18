@@ -14,6 +14,7 @@ public class planeBehavore : MonoBehaviour {
     public AudioClip explotionSound;
     AudioSource myAudio;
 	public int damage; //when fireballs hit player, how much does this hurt the player?
+	public bool bossMode;
 
 	private bool targetHit;
 

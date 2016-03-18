@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
+using System;
 
 public class playerControler : MonoBehaviour {
 
@@ -36,7 +38,10 @@ public class playerControler : MonoBehaviour {
 	private Color origColor;
 	public GameObject[] togglePlatforms;
 	private bool lastTouchedPost = false;
-	public float origPostMagnitude;
+	private float origPostMagnitude;
+	private bool marioDeathJump;
+	private bool canDoubleJump;
+	private bool bossLevel;
 
     // Use this for initialization
     void Awake () {
@@ -46,39 +51,58 @@ public class playerControler : MonoBehaviour {
         myAudio = gameObject.GetComponent<AudioSource>();
         m_GroundCheck = transform.Find("GroundCheck");
 		onPlatform = false;
-		debugging = true;
+		debugging = false;
 		CamCamera = Cam.GetComponent<Camera> ();
 		toggleValue = -1;
 //		toggleItemColors [0] = mySprite.color;
 		origColor = mySprite.color;
+		marioDeathJump = false;
+		canDoubleJump = true;
+		origPostMagnitude = -1.5f;
+		bossLevel = false;
     }
 	
 	// Update is called once per frame
 	void Update () {
-        //checkCamPos ();
-        CamCamera.transform.position = new Vector3(CamCamera.transform.position.x, Mathf.Lerp(CamCamera.transform.position.y, transform.position.y + 5.0f, 0.75f), CamCamera.transform.position.z);
 		if (health > 0 || debugging) {
+			moveCameraHeight ();
 			//print(myRig.velocity.x);
-			changeSprite();
+			changeSprite ();
 			myRig.velocity = new Vector2 (myRig.velocity.x * hFirction, myRig.velocity.y);
 			Collider2D[] colliders = Physics2D.OverlapCircleAll (m_GroundCheck.position, 
-				                               k_GroundedRadius, 1 << LayerMask.NameToLayer ("Platforms"));
-			if (colliders.Length <= 1) {
-				canJump = false; //colliding only with main body
+				                         k_GroundedRadius, 1 << LayerMask.NameToLayer ("Platforms"));
+			if (colliders.Length < 1) {
+				canJump = false; //colliding with nothing
+				onPlatform = false;
 			}
+			bool canJumpOnOne = false;
 			for (int i = 0; i < colliders.Length; i++) {
-				if (colliders [i].gameObject != gameObject) {
-					canJump = true;
-				} else {
-					canJump = false;
+				try {
+					togglePlatformBehavior platScript = colliders[i].GetComponent<togglePlatformBehavior>();
+					if (!platScript.inactive){
+						canJumpOnOne = true;
+						break;
+					}
+				}
+				catch (Exception e){
+					if (colliders [i].gameObject != gameObject) {
+						canJumpOnOne = true;
+						break;
+					}
 				}
 			}
-			if (Input.GetKeyDown ("up") || Input.GetKeyDown ("w") || Input.GetKeyDown("space")) {
-				if (canJump) {
+			if (canJumpOnOne) {
+				canJump = true;
+			}
+			if (Input.GetKeyDown ("up") || Input.GetKeyDown ("w") || Input.GetKeyDown ("space")) {
+				if (canJump || canDoubleJump) {
 					onPlatform = false;
 					myAudio.clip = jumpSound;
 					myAudio.Play ();
-					myRig.velocity = new Vector2 (myRig.velocity.x, jumpPower);
+					myRig.velocity = new Vector2 (myRig.velocity.x, getJumpPower());
+					if (canDoubleJump && !canJump) {
+						canDoubleJump = false;
+					}
 					canJump = false;
 				}
 			} else if (Input.GetKey ("left") || Input.GetKey ("a")) {
@@ -96,8 +120,38 @@ public class playerControler : MonoBehaviour {
 					myRig.velocity = new Vector2 (maxRunSpeed, myRig.velocity.y);
 				}
 			}
+		} else {
+			if (!marioDeathJump) {
+				marioDeathJump = true;
+				myCollider.enabled = false;
+				myRig.velocity = new Vector2 (0f, 45f);
+				mySprite.sprite = jumpSprite;
+				mySprite.flipY = true;
+				Invoke ("respawn", 2f);
+			}
 		}
     }
+
+	private void moveCameraHeight(){
+		if (SceneManager.GetActiveScene ().buildIndex < SceneManager.sceneCountInBuildSettings - 1) {
+			CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, 
+				Mathf.Lerp (CamCamera.transform.position.y, 
+					transform.position.y + 5.0f, 0.75f), 
+				CamCamera.transform.position.z);
+		} else {
+			bossLevel = true;
+		}
+	}
+
+	private float getJumpPower(){
+		if (canJump)
+			return jumpPower;
+		return jumpPower * 0.75f;
+	}
+
+	void respawn(){
+		SceneManager.LoadScene (SceneManager.GetActiveScene ().buildIndex);
+	}
 
 	private void checkCamPos(){
 		camMoveHi = Screen.height / 3f;
@@ -134,7 +188,7 @@ public class playerControler : MonoBehaviour {
 		} else if (myRig.velocity.x < -1f * epsilon) {
 			mySprite.sprite = leftSprite;
 		}
-		if (myRig.velocity.y > epsilon) {
+		if (myRig.velocity.y > epsilon && !canJump) {
 			mySprite.sprite = jumpSprite;
 		} else if (myRig.velocity.y < -1f * epsilon && Mathf.Abs (myRig.velocity.x) <= epsilon) {
 			mySprite.sprite = jumpSprite; //fixme fall sprite?
@@ -142,67 +196,77 @@ public class playerControler : MonoBehaviour {
 		if (Mathf.Abs (myRig.velocity.x) <= epsilon && Mathf.Abs (myRig.velocity.y) <= epsilon){
 			mySprite.sprite = idleSprite;
 		}
-
-
-//		if (myRig.velocity.y > 0) {
-//			mySprite.sprite = jumpSprite;
-//		} else if (myRig.velocity.y < 0 && myRig.velocity.x == 0) {
-//			mySprite.sprite = jumpSprite;
-//		}
-//		if (myRig.velocity.x == 0 && myRig.velocity.y == 0) {
-//			mySprite.sprite = idleSprite;
-//		}
 	}
 
 	void OnCollisionStay2D(Collision2D other){
 //		Debug.Log ("collStay");
 		if (other.gameObject.tag == "targetPlatform") {
-			lastTouchedPost = false;
 //			platformBehavoir platScript = other.gameObject.GetComponent<platformBehavoir> ();
 			togglePlatformBehavior platScript = other.gameObject.GetComponent<togglePlatformBehavior> ();
-			if (Input.GetKey ("down") || Input.GetKey ("s")) {
-				platScript.letPlayerFallThrough ();
-				//fixme play fall through animation?
+			if (!platScript.inactive) {
+				lastTouchedPost = false;
+				if (Input.GetKeyDown ("down") || Input.GetKeyDown ("s")) {
+					platScript.letPlayerFallThrough ();
+					//fixme play fall through animation?
+				}
+				onPlatform = true;
 			}
 		} else if (other.gameObject.tag == "bottomEdge") {
 			lastTouchedPost = false;
+			onPlatform = true;
+		} else if (other.gameObject.tag == "post") {
+			post postScript = other.gameObject.GetComponent<post> ();
+			if (Input.GetKeyDown ("down") || Input.GetKeyDown ("s")) {
+				postScript.letPlayerFallThrough ();
+			}
+			onPlatform = true;
 		}
 	}
 
+	void OnCollisionEnter2D(Collision2D other){
+		if (other.gameObject.tag == "post") {
+			canDoubleJump = true;
+			onPlatform = true;
+			float postEpsilon = -25f;
+			Debug.Log ("****************   " + myRig.velocity.y);
+			if (myRig.velocity.y > postEpsilon || Input.GetKey ("down") || Input.GetKey ("s")) {
+				Debug.Log ("too slow, treat as a regular platform");
+				lastTouchedPost = false;
+			} else {
+				postJump (other.gameObject.GetComponent<post> ());
+			}
+		} else if (other.gameObject.tag == "targetPlatform") {
+			if (!other.gameObject.GetComponent<togglePlatformBehavior> ().inactive) {
+				canDoubleJump = true;
+				onPlatform = true;
+			}
+		} else if (other.gameObject.tag == "bottomEdge") {
+			canDoubleJump = true;
+			onPlatform = true;
+			if (bossLevel) {
+				getHit (health);
+			}
+		}
+	}
 
-    void OnTriggerStay2D(Collider2D other)
-    {
-//        if (other.tag == "targetPlatform")
-//        {
-//            if (Input.GetKeyDown("space"))
-//            {
-//                other.GetComponent<platformBehavoir>().active = true;
-//            }
-//			if (Input.GetKeyDown("down") || Input.GetKeyDown("s")){
-//				Debug.Log ("fall through");
-//			}
-//        }
-        if (other.tag == "post")
-        {
-			post postScript = other.gameObject.GetComponent<post> ();
-			float magnitude = origPostMagnitude;
-			if (postScript.active)
-            {
-				if (!lastTouchedPost) {
-					magnitude = origPostMagnitude;
-				} else {
-					magnitude = -1f;
-				}
-				if (postScript.vertical) {
-					myRig.velocity = new Vector2 (myRig.velocity.x, myRig.velocity.y * magnitude);
-				} else {
-					myRig.velocity = new Vector2 (myRig.velocity.x * magnitude, myRig.velocity.y);
-				}
-				postScript.active = false;
-				lastTouchedPost = true;
-            }
-        }
-    }
+	private void postJump(post postScript){
+		float magnitude = origPostMagnitude;
+		if (postScript.active)
+		{
+			if (!lastTouchedPost) {
+				magnitude = origPostMagnitude;
+			} else {
+				magnitude = -1f;
+			}
+			if (postScript.vertical) {
+				myRig.velocity = new Vector2 (myRig.velocity.x, myRig.velocity.y * magnitude);
+			} else {
+				myRig.velocity = new Vector2 (myRig.velocity.x * magnitude, myRig.velocity.y);
+			}
+			postScript.active = false;
+			lastTouchedPost = true;
+		}
+	}
 
 	//used by planes/fireballs/enemies
 	public void getHit(int damage){
