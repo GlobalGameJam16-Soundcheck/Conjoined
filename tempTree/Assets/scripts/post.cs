@@ -19,6 +19,8 @@ public class post : MonoBehaviour {
 	private float timer;
 	private float fallTime;
 
+	private AudioSource trampSound;
+
 	// Use this for initialization
 	void Start () {
         mySprite = gameObject.GetComponent<SpriteRenderer>();
@@ -36,6 +38,7 @@ public class post : MonoBehaviour {
 		fallTime = 0.25f;
 		pe2d = GetComponent<PlatformEffector2D> ();
 		playerLayer = (1 << LayerMask.NameToLayer ("Player"));
+		trampSound = GetComponent<AudioSource> ();
 	}
 	
 	// Update is called once per frame
@@ -85,6 +88,12 @@ public class post : MonoBehaviour {
 	public void letPlayerFallThrough(){
 		pe2d.colliderMask = pe2d.colliderMask & ~playerLayer; //lets collider ignore player
 		playerFallingThrough = true;
+	}
+
+	public void playSound(){
+//		if (!trampSound.isPlaying) {
+		trampSound.Play ();
+//		}
 	}
 
 }

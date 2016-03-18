@@ -12,6 +12,7 @@ public class toggleOrbBehavior : MonoBehaviour {
 	private float timer;
 	private float flashTime;
 	private int count;
+	private AudioSource sound;
 
 	void Start(){
 		mySprite = GetComponent<SpriteRenderer> ();
@@ -21,6 +22,7 @@ public class toggleOrbBehavior : MonoBehaviour {
 		grabbed = false;
 		origSprite = mySprite.sprite;
 		count = 0;
+		sound = GetComponent<AudioSource> ();
 	}
 
 	void Update(){
@@ -43,12 +45,13 @@ public class toggleOrbBehavior : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
-		if (other.gameObject.tag == "player") {
+		if (other.gameObject.tag == "player" && !sound.isPlaying) {
 			Debug.Log ("player touching");
 			other.gameObject.GetComponent<playerControler> ().grabOrb (value, color);
 			grabbed = true;
 			timer = 0f;
 			count = 0;
+			sound.Play ();
 		}
 	}
 }

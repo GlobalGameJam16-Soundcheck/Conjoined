@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class planeDropFireballsBehavior : MonoBehaviour {
 
@@ -15,16 +16,24 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 	private float timer;
 	private float flashTime;
 	private int count;
+	public bool bossLevel;
+
+	private float spawnTimer;
+	private float spawnTime;
+	private bool wrapping;
 
 	// Use this for initialization
 	void Start () {
 		mySprite = gameObject.GetComponent<SpriteRenderer>();
 		setDirectionAndVelo ();
-		InvokeRepeating("spawnFireballWrapper", delay, fireballSpawnTime);
+//		InvokeRepeating("spawnFireballWrapper", delay, fireballSpawnTime);
 		gotHit = false;
 		count = 0;
 		flashTime = 2f;
 		timer = 0f;
+		spawnTime = 1f;
+		spawnTimer = 0f;
+		wrapping = false;
 	}
 	
 	// Update is called once per frame
@@ -46,6 +55,12 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 				}
 			}
 		}
+		spawnTimer += Time.deltaTime;
+		if (spawnTimer >= fireballSpawnTime) {
+			spawnFireball ();
+			spawnTimer = 0f;
+			fireballSpawnTime = Random.Range (1f, 3f);
+		}
 	}
 
 	private void setDirectionAndVelo(){
@@ -64,14 +79,20 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 		}
 	}
 
-	private void spawnFireballWrapper(){
-		int numToSpawn = Random.Range (1, 3);
-		int numSpawned = 0;
-		while (numSpawned < numToSpawn) {
-			Invoke ("spawnFireball", (numSpawned + 1));
-			numSpawned++;
-		}
-	}
+//	private void spawnFireballWrapper(){
+//		wrapping = true;
+//		int numToSpawn = Random.Range (1, 3);
+//		int numSpawned = 0;
+//		while (numSpawned < numToSpawn) {
+//			Collider2D[] colliders = Physics2D.OverlapCircleAll (transform.position, 
+//				transform.localScale.y, 1 << LayerMask.NameToLayer ("fireballBoss"));
+//			if (colliders.Length == 0) {
+//				spawnFireball ();
+//				numSpawned++;
+//			}
+//		}
+//		wrapping = false;
+//	}
 
 	private void spawnFireball(){
 		float xPos = transform.position.x;
@@ -83,15 +104,25 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 	public void getHit(int damage){
 		health -= damage;
 		//fixme get hit animation
+		speed *= 1.15f;
 		gotHit = true;
 		if (health <= 0) {
 			getDestroyed ();
 		}
 	}
 
+	private void mainMenu(){
+		SceneManager.LoadScene (0);
+	}
+
 	private void getDestroyed(){
 		float destroyDelay = 2f;
-		Destroy(gameObject, destroyDelay);
+		if (!bossLevel) {
+			Destroy (gameObject, destroyDelay);
+		} else {
+			transform.position = new Vector2 (transform.position.x * 100000f, 0f);
+			Invoke ("mainMenu", 4f);
+		}
 	}
 
 }

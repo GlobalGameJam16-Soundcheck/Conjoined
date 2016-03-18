@@ -9,11 +9,13 @@ public class fireballBehavior : MonoBehaviour {
 	public float origPostMagnitude;
 	public float slowerPostMag;
 	public bool floorFire;
+	private AudioSource thud;
 
 	// Use this for initialization
 	public void justSpawned () {
 		lastTouchedPost = false;
 		myRig = GetComponent<Rigidbody2D> ();
+		thud = GetComponent<AudioSource> ();
 //		addXForce (30f);
 	}
 
@@ -24,14 +26,17 @@ public class fireballBehavior : MonoBehaviour {
 				Debug.Log ("hitting player");
 				other.gameObject.GetComponent<playerControler> ().getHit (damage);
 				Debug.Log ("get destroyed");
+				thud.Play ();
 				getDestroyed ();
 				lastTouchedPost = false;
 			} else if (other.gameObject.tag == "bottomEdge") {
 //				Debug.Log ("hit the bottom get destroyed");
 				lastTouchedPost = false;
+				thud.Play ();
 				getDestroyed ();
 			} else if (other.gameObject.tag == "targetPlatform") {
 				Debug.Log ("hitting platform");
+				thud.Play ();
 //				float yForce = 15f;
 //				if (myRig.velocity.y > 0f) {
 //					yForce = 0f;
@@ -41,32 +46,23 @@ public class fireballBehavior : MonoBehaviour {
 //				addXYForce (15f, yForce);
 				lastTouchedPost = false;
 			} else if (other.gameObject.tag == "post") {
+				thud.Play ();
 				Debug.Log ("hitting post");
 				post postScript = other.gameObject.GetComponent<post> ();
 //				float magnitude = origPostMagnitude;
 				if (other.gameObject.GetComponent<post> ().active) {
 					if (!lastTouchedPost) {
-//						magnitude = origPostMagnitude;
-//					} else {
-//						magnitude = slowerPostMag;
-//						Debug.Log ("lower magnitude");
-//					}
-//					if (other.gameObject.GetComponent<post> ().vertical) {
-//						myRig.velocity = new Vector2 (myRig.velocity.x, myRig.velocity.y * magnitude);
-//					} else {
-//						myRig.velocity = new Vector2 (myRig.velocity.x * magnitude, myRig.velocity.y);
-//					}
 						postScript.active = false;
 						lastTouchedPost = true;
 						Debug.Log (myRig.velocity.y);
-//						Debug.Break ();
 						addXYForce (Random.Range(-10f, 10f), - 150f * myRig.velocity.y);
 						Destroy (gameObject, 2f);
+						postScript.playSound ();
 					}
 				}
 			} else if (other.gameObject.tag == "fireball") {
 				lastTouchedPost = false;
-				getDestroyed ();
+//				getDestroyed ();
 			}
 		}
 	}

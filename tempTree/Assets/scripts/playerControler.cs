@@ -23,7 +23,9 @@ public class playerControler : MonoBehaviour {
     public Sprite leftSprite;
     public Sprite idleSprite;
     public AudioClip jumpSound;
+	public AudioClip doubleJumpSound;
     public AudioClip fallSound;
+	public AudioClip landSound;
     AudioSource myAudio;
 
 	public int health;
@@ -43,6 +45,8 @@ public class playerControler : MonoBehaviour {
 	private bool canDoubleJump;
 	private bool bossLevel;
 
+	private int dealDamage;
+
     // Use this for initialization
     void Awake () {
         myRig = gameObject.GetComponent<Rigidbody2D>();
@@ -51,7 +55,7 @@ public class playerControler : MonoBehaviour {
         myAudio = gameObject.GetComponent<AudioSource>();
         m_GroundCheck = transform.Find("GroundCheck");
 		onPlatform = false;
-		debugging = false;
+		debugging = true;
 		CamCamera = Cam.GetComponent<Camera> ();
 		toggleValue = -1;
 //		toggleItemColors [0] = mySprite.color;
@@ -60,11 +64,20 @@ public class playerControler : MonoBehaviour {
 		canDoubleJump = true;
 		origPostMagnitude = -1.5f;
 		bossLevel = false;
+		dealDamage = 1;
     }
 	
 	// Update is called once per frame
 	void Update () {
-		if (health > 0 || debugging) {
+		if (debugging) {
+			if (Input.GetKeyDown ("b")) {
+				//turn blue
+				grabOrb (0, Color.blue);
+			} else if (Input.GetKeyDown ("r")) {
+				grabOrb (1, Color.red);
+			}
+		}
+		if (health > 0) {
 			moveCameraHeight ();
 			//print(myRig.velocity.x);
 			changeSprite ();
@@ -98,11 +111,15 @@ public class playerControler : MonoBehaviour {
 				if (canJump || canDoubleJump) {
 					onPlatform = false;
 					myAudio.clip = jumpSound;
-					myAudio.Play ();
+//					float yForce = jumpPower * 50f;
 					myRig.velocity = new Vector2 (myRig.velocity.x, getJumpPower());
 					if (canDoubleJump && !canJump) {
 						canDoubleJump = false;
+						myAudio.clip = doubleJumpSound;
+//						yForce *= 0.75f;
 					}
+//					myRig.AddForce (new Vector2 (0f, yForce));
+					myAudio.Play ();
 					canJump = false;
 				}
 			} else if (Input.GetKey ("left") || Input.GetKey ("a")) {
@@ -146,7 +163,9 @@ public class playerControler : MonoBehaviour {
 	private float getJumpPower(){
 		if (canJump)
 			return jumpPower;
-		return jumpPower * 0.75f;
+		float yVelo = jumpPower * 0.75f;
+//		if ( //fixme if the player is going up faster, yVelo is going to be slower and using the double jump will slow them down
+		return yVelo;
 	}
 
 	void respawn(){
@@ -198,6 +217,12 @@ public class playerControler : MonoBehaviour {
 		}
 	}
 
+	void OnTriggerEnter2D(Collider2D other){
+		if (other.gameObject.tag == "plane") {
+			other.GetComponent<planeDropFireballsBehavior> ().getHit (dealDamage);
+		}
+	}
+
 	void OnCollisionStay2D(Collision2D other){
 //		Debug.Log ("collStay");
 		if (other.gameObject.tag == "targetPlatform") {
@@ -227,7 +252,7 @@ public class playerControler : MonoBehaviour {
 		if (other.gameObject.tag == "post") {
 			canDoubleJump = true;
 			onPlatform = true;
-			float postEpsilon = -25f;
+			float postEpsilon = -30f;
 			Debug.Log ("****************   " + myRig.velocity.y);
 			if (myRig.velocity.y > postEpsilon || Input.GetKey ("down") || Input.GetKey ("s")) {
 				Debug.Log ("too slow, treat as a regular platform");
@@ -239,6 +264,8 @@ public class playerControler : MonoBehaviour {
 			if (!other.gameObject.GetComponent<togglePlatformBehavior> ().inactive) {
 				canDoubleJump = true;
 				onPlatform = true;
+				myAudio.clip = landSound;
+				myAudio.Play ();
 			}
 		} else if (other.gameObject.tag == "bottomEdge") {
 			canDoubleJump = true;
@@ -246,6 +273,8 @@ public class playerControler : MonoBehaviour {
 			if (bossLevel) {
 				getHit (health);
 			}
+			myAudio.clip = landSound;
+			myAudio.Play ();
 		}
 	}
 
@@ -265,6 +294,7 @@ public class playerControler : MonoBehaviour {
 			}
 			postScript.active = false;
 			lastTouchedPost = true;
+			postScript.playSound ();
 		}
 	}
 
