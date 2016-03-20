@@ -46,6 +46,8 @@ public class playerControler : MonoBehaviour {
 	private bool bossLevel;
 
 	private int dealDamage;
+	private float origGravScale;
+	private bool floating;
 
     // Use this for initialization
     void Awake () {
@@ -65,6 +67,8 @@ public class playerControler : MonoBehaviour {
 		origPostMagnitude = -1.5f;
 		bossLevel = false;
 		dealDamage = 1;
+		origGravScale = myRig.gravityScale;
+		floating = false;
     }
 	
 	// Update is called once per frame
@@ -112,7 +116,7 @@ public class playerControler : MonoBehaviour {
 					onPlatform = false;
 					myAudio.clip = jumpSound;
 //					float yForce = jumpPower * 50f;
-					myRig.velocity = new Vector2 (myRig.velocity.x, getJumpPower());
+					myRig.velocity = new Vector2 (myRig.velocity.x, getJumpPower ());
 					if (canDoubleJump && !canJump) {
 						canDoubleJump = false;
 						myAudio.clip = doubleJumpSound;
@@ -122,7 +126,12 @@ public class playerControler : MonoBehaviour {
 					myAudio.Play ();
 					canJump = false;
 				}
-			} else if (Input.GetKey ("left") || Input.GetKey ("a")) {
+			} else if ((Input.GetKey ("up") || Input.GetKey ("w")) && myRig.velocity.y < -5f) {
+				floatDown ();
+			} else if (Input.GetKeyUp ("up") || Input.GetKeyUp ("w") && floating) {
+				unfloatDown ();
+			}
+			if (Input.GetKey ("left") || Input.GetKey ("a")) {
 				if (myRig.velocity.x > -maxRunSpeed) {
 					myRig.velocity = new Vector2 (myRig.velocity.x - runSpeed, myRig.velocity.y);
 				}
@@ -149,6 +158,18 @@ public class playerControler : MonoBehaviour {
 		}
     }
 
+	private void floatDown(){
+		Debug.Log ("floaty");
+//		myRig.gravityScale = origGravScale / origGravScale;
+		myRig.AddForce(new Vector2(0f, -1f * 20f * myRig.velocity.y));
+		floating = true;
+	}
+
+	private void unfloatDown(){
+//		myRig.gravityScale = origGravScale;
+		floating = false;
+	}
+
 	private void moveCameraHeight(){
 		if (SceneManager.GetActiveScene ().buildIndex < SceneManager.sceneCountInBuildSettings - 1) {
 			CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, 
@@ -165,6 +186,11 @@ public class playerControler : MonoBehaviour {
 			return jumpPower;
 		float yVelo = jumpPower * 0.75f;
 //		if ( //fixme if the player is going up faster, yVelo is going to be slower and using the double jump will slow them down
+		if (canDoubleJump && lastTouchedPost && myRig.velocity.y > 15f){
+			Debug.Log ("***************: " + myRig.velocity.y);
+			myRig.AddForce (new Vector2 (0f, jumpPower * 350f * myRig.mass / myRig.velocity.y));
+			yVelo = myRig.velocity.y;
+		}
 		return yVelo;
 	}
 
@@ -200,6 +226,7 @@ public class playerControler : MonoBehaviour {
 	}
 
 	private void changeSprite(){
+		mySprite.flipY = false;
 		//fixme only do this if damage animation is not playing
 		float epsilon = 0.0005f;
 		if (myRig.velocity.x > epsilon) {
@@ -214,6 +241,10 @@ public class playerControler : MonoBehaviour {
 		}
 		if (Mathf.Abs (myRig.velocity.x) <= epsilon && Mathf.Abs (myRig.velocity.y) <= epsilon){
 			mySprite.sprite = idleSprite;
+		}
+		if (floating) {
+			mySprite.sprite = idleSprite;
+			mySprite.flipY = true;
 		}
 	}
 
@@ -253,7 +284,7 @@ public class playerControler : MonoBehaviour {
 			canDoubleJump = true;
 			onPlatform = true;
 			float postEpsilon = -30f;
-			Debug.Log ("****************   " + myRig.velocity.y);
+//			Debug.Log ("****************   " + myRig.velocity.y);
 			if (myRig.velocity.y > postEpsilon || Input.GetKey ("down") || Input.GetKey ("s")) {
 				Debug.Log ("too slow, treat as a regular platform");
 				lastTouchedPost = false;
@@ -295,6 +326,7 @@ public class playerControler : MonoBehaviour {
 			postScript.active = false;
 			lastTouchedPost = true;
 			postScript.playSound ();
+			//fixme set a max velo?
 		}
 	}
 
