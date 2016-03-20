@@ -161,7 +161,7 @@ public class playerControler : MonoBehaviour {
 	private void floatDown(){
 		Debug.Log ("floaty");
 //		myRig.gravityScale = origGravScale / origGravScale;
-		myRig.AddForce(new Vector2(0f, -1f * 20f * myRig.velocity.y));
+		myRig.AddForce(new Vector2(0f, -1f * 7f * myRig.velocity.y));
 		floating = true;
 	}
 
@@ -171,10 +171,11 @@ public class playerControler : MonoBehaviour {
 	}
 
 	private void moveCameraHeight(){
+		float offset = 0f;
 		if (SceneManager.GetActiveScene ().buildIndex < SceneManager.sceneCountInBuildSettings - 1) {
 			CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, 
 				Mathf.Lerp (CamCamera.transform.position.y, 
-					transform.position.y + 5.0f, 0.75f), 
+					transform.position.y + offset, 0.75f), 
 				CamCamera.transform.position.z);
 		} else {
 			bossLevel = true;
