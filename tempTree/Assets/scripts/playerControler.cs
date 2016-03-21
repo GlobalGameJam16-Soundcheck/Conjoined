@@ -48,6 +48,8 @@ public class playerControler : MonoBehaviour {
 	private int dealDamage;
 	private float origGravScale;
 	private bool floating;
+	private float origFloatTime;
+	private float floatTimeLeft;
 
     // Use this for initialization
     void Awake () {
@@ -69,6 +71,8 @@ public class playerControler : MonoBehaviour {
 		dealDamage = 1;
 		origGravScale = myRig.gravityScale;
 		floating = false;
+		origFloatTime = 1f;
+		floatTimeLeft = origFloatTime;
     }
 	
 	// Update is called once per frame
@@ -126,9 +130,9 @@ public class playerControler : MonoBehaviour {
 					myAudio.Play ();
 					canJump = false;
 				}
-			} else if ((Input.GetKey ("up") || Input.GetKey ("w")) && myRig.velocity.y < -5f) {
+			} else if ((Input.GetKey ("up") || Input.GetKey ("w")) && myRig.velocity.y < -5f && !canJump) {
 				floatDown ();
-			} else if (Input.GetKeyUp ("up") || Input.GetKeyUp ("w") && floating) {
+			} else if ((Input.GetKeyUp ("up") || Input.GetKeyUp ("w") && floating)) {
 				unfloatDown ();
 			}
 			if (Input.GetKey ("left") || Input.GetKey ("a")) {
@@ -159,10 +163,16 @@ public class playerControler : MonoBehaviour {
     }
 
 	private void floatDown(){
-		Debug.Log ("floaty");
+		floatTimeLeft -= Time.deltaTime;
+		if (floatTimeLeft > 0) {
+			Debug.Log ("floaty");
 //		myRig.gravityScale = origGravScale / origGravScale;
-		myRig.AddForce(new Vector2(0f, -1f * 7f * myRig.velocity.y));
-		floating = true;
+			myRig.AddForce (new Vector2 (0f, -1f * 7f * myRig.velocity.y));
+			floating = true;
+		} else {
+			Debug.Log ("no more float time"); 
+			floating = false;
+		}
 	}
 
 	private void unfloatDown(){
@@ -292,12 +302,14 @@ public class playerControler : MonoBehaviour {
 			} else {
 				postJump (other.gameObject.GetComponent<post> ());
 			}
+			floatTimeLeft = origFloatTime;
 		} else if (other.gameObject.tag == "targetPlatform") {
 			if (!other.gameObject.GetComponent<togglePlatformBehavior> ().inactive) {
 				canDoubleJump = true;
 				onPlatform = true;
 				myAudio.clip = landSound;
 				myAudio.Play ();
+				floatTimeLeft = origFloatTime;
 			}
 		} else if (other.gameObject.tag == "bottomEdge") {
 			canDoubleJump = true;
@@ -307,6 +319,7 @@ public class playerControler : MonoBehaviour {
 			}
 			myAudio.clip = landSound;
 			myAudio.Play ();
+			floatTimeLeft = origFloatTime;
 		}
 	}
 
