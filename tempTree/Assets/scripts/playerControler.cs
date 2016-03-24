@@ -26,6 +26,7 @@ public class playerControler : MonoBehaviour {
 	public AudioClip doubleJumpSound;
     public AudioClip fallSound;
 	public AudioClip landSound;
+	public AudioClip floatSound;
     AudioSource myAudio;
 
 	public int health;
@@ -50,6 +51,8 @@ public class playerControler : MonoBehaviour {
 	private bool floating;
 	private float origFloatTime;
 	private float floatTimeLeft;
+	private float floatDelay;
+	private float origFloatDelay;
 
     // Use this for initialization
     void Awake () {
@@ -71,17 +74,19 @@ public class playerControler : MonoBehaviour {
 		dealDamage = 1;
 		origGravScale = myRig.gravityScale;
 		floating = false;
-		origFloatTime = 1f;
+		origFloatTime = 2f;
 		floatTimeLeft = origFloatTime;
+		origFloatDelay = 0.1f;
+		floatDelay = 0f;
     }
 	
 	// Update is called once per frame
 	void Update () {
 		if (debugging) {
-			if (Input.GetKeyDown ("b")) {
+			if (Input.GetKeyDown ("]")) {
 				//turn blue
 				grabOrb (0, Color.blue);
-			} else if (Input.GetKeyDown ("r")) {
+			} else if (Input.GetKeyDown ("[")) {
 				grabOrb (1, Color.red);
 			}
 		}
@@ -163,20 +168,29 @@ public class playerControler : MonoBehaviour {
     }
 
 	private void floatDown(){
-		floatTimeLeft -= Time.deltaTime;
-		if (floatTimeLeft > 0) {
-			Debug.Log ("floaty");
+		floatDelay += Time.deltaTime;
+		if (floatDelay >= origFloatDelay) {
+			floatTimeLeft -= Time.deltaTime;
+			if (floatTimeLeft > 0) {
+				Debug.Log ("floaty");
 //		myRig.gravityScale = origGravScale / origGravScale;
-			myRig.AddForce (new Vector2 (0f, -1f * 7f * myRig.velocity.y));
-			floating = true;
-		} else {
-			Debug.Log ("no more float time"); 
-			floating = false;
+				myRig.AddForce (new Vector2 (0f, -1f * 7f * myRig.velocity.y));
+				myAudio.clip = floatSound;
+				if (!myAudio.isPlaying) {
+					myAudio.Play ();
+				}
+				floating = true;
+			} else {
+				Debug.Log ("no more float time"); 
+				floating = false;
+				floatDelay = 0f;
+			}
 		}
 	}
 
 	private void unfloatDown(){
 //		myRig.gravityScale = origGravScale;
+		floatDelay = 0f;
 		floating = false;
 	}
 

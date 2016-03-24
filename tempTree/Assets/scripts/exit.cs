@@ -22,6 +22,8 @@ public class exit : MonoBehaviour {
 				goToNextLevel (1);
 			} else if (Input.GetKeyDown ("1")) {
 				goToNextLevel (-1);
+			} else if (Input.GetKeyDown ("r")) {
+				goToNextLevel (0);
 			}
 		}
 	}
