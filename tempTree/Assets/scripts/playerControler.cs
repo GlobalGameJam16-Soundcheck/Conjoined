@@ -22,6 +22,7 @@ public class playerControler : MonoBehaviour {
     public Sprite rightSprite;
     public Sprite leftSprite;
     public Sprite idleSprite;
+    public Sprite floatSprite;
     public AudioClip jumpSound;
 	public AudioClip doubleJumpSound;
     public AudioClip fallSound;
@@ -251,7 +252,6 @@ public class playerControler : MonoBehaviour {
 	}
 
 	private void changeSprite(){
-		mySprite.flipY = false;
 		//fixme only do this if damage animation is not playing
 		float epsilon = 0.0005f;
 		if (myRig.velocity.x > epsilon) {
@@ -268,8 +268,7 @@ public class playerControler : MonoBehaviour {
 			mySprite.sprite = idleSprite;
 		}
 		if (floating) {
-			mySprite.sprite = idleSprite;
-			mySprite.flipY = true;
+			mySprite.sprite = floatSprite;
 		}
 	}
 
