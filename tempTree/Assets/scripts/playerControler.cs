@@ -63,7 +63,7 @@ public class playerControler : MonoBehaviour {
 	private float floatTimeLeft;
 	private float floatDelay;
 	private float origFloatDelay;
-	private float camStartLerpDelay;
+	public float camStartLerpDelay;
 
     // Use this for initialization
     void Awake () {
@@ -95,7 +95,7 @@ public class playerControler : MonoBehaviour {
 		bossBeatTimer = 0f;
 		startCam = true;
 		bossBeat = false;
-		camStartLerpDelay = 2.3f;
+//		camStartLerpDelay = 2.3f;
     }
 	
 	// Update is called once per frame
@@ -110,7 +110,7 @@ public class playerControler : MonoBehaviour {
 		}
 		if (health > 0) {
 			moveCameraHeight ();
-			if (!startCam) {
+			if (!startCam && !bossBeat) {
 				
 				//print(myRig.velocity.x);
 				changeSprite ();
@@ -245,9 +245,19 @@ public class playerControler : MonoBehaviour {
 				if (startCam) {
 					camStartLerpDelay -= Time.deltaTime;
 					if (camStartLerpDelay <= 0) {
+						foreach (Transform startText in CamCamera.transform) {
+							if (!startText.gameObject.activeInHierarchy) {
+								startText.gameObject.SetActive (true);
+							}
+						}
 						Vector3 newPos = Vector3.MoveTowards (CamCamera.transform.position, transform.position, speed);
 						CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, newPos.y, CamCamera.transform.position.z);
 						if (Mathf.Abs (CamCamera.transform.position.y - transform.position.y) < camEpsilon) {
+							foreach (Transform startText in CamCamera.transform) {
+								if (startText.gameObject.activeInHierarchy) {
+									startText.gameObject.SetActive (false);
+								}
+							}
 							startCam = false;
 						}
 					}

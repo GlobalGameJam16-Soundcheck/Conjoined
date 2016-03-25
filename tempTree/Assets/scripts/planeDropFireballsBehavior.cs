@@ -120,6 +120,9 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 
 	private void getDestroyed(){
 		float destroyDelay = 2f;
+		foreach (Transform fire in transform){
+			fire.gameObject.SetActive (true);
+		}
 		player.GetComponent<playerControler> ().bossDead ();
 		if (!bossLevel) {
 			Destroy (gameObject, destroyDelay);
