@@ -139,7 +139,7 @@ public class playerControler : MonoBehaviour {
 				if (canJumpOnOne) {
 					canJump = true;
 				}
-				if (Input.GetKeyDown ("up") || Input.GetKeyDown ("w") || Input.GetKeyDown ("space")) {
+				if (Input.GetKeyDown ("up") || Input.GetKeyDown ("w")) {
 					if (canJump || canDoubleJump) {
 						onPlatform = false;
 						if (!bossBeat) {
@@ -228,6 +228,14 @@ public class playerControler : MonoBehaviour {
 		if (!bossBeat) {
 			if (startCam) {
 				speed = 0.5f;
+				if (Input.GetKeyDown ("space")) {
+					startCam = false;
+					foreach (Transform startText in CamCamera.transform) {
+						if (startText.gameObject.activeInHierarchy) {
+							startText.gameObject.SetActive (false);
+						}
+					}
+				}
 			}
 			if (bossLevel && hitCP) {
 				offset = 8f;
