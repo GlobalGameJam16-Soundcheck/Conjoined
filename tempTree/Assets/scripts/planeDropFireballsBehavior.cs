@@ -21,6 +21,7 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 	private float spawnTimer;
 	private float spawnTime;
 	private bool wrapping;
+	public GameObject player;
 
 	// Use this for initialization
 	void Start () {
@@ -38,8 +39,16 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		transform.position = transform.position + velocity * Time.deltaTime;
-		if (gotHit) {
+		if (health > 0) {
+			transform.position = transform.position + velocity * Time.deltaTime;
+			spawnTimer += Time.deltaTime;
+			if (spawnTimer >= fireballSpawnTime) {
+				spawnFireball ();
+				spawnTimer = 0f;
+				fireballSpawnTime = Random.Range (1f, 3f);
+			}
+		}
+		if (gotHit || (health <= 0)) {
 			timer += Time.deltaTime;
 			if (timer >= flashTime) {
 				mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b);
@@ -54,12 +63,6 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 					mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b);
 				}
 			}
-		}
-		spawnTimer += Time.deltaTime;
-		if (spawnTimer >= fireballSpawnTime) {
-			spawnFireball ();
-			spawnTimer = 0f;
-			fireballSpawnTime = Random.Range (1f, 3f);
 		}
 	}
 
@@ -117,11 +120,12 @@ public class planeDropFireballsBehavior : MonoBehaviour {
 
 	private void getDestroyed(){
 		float destroyDelay = 2f;
+		player.GetComponent<playerControler> ().bossDead ();
 		if (!bossLevel) {
 			Destroy (gameObject, destroyDelay);
 		} else {
-			transform.position = new Vector2 (transform.position.x * 100000f, 0f);
-			Invoke ("mainMenu", 4f);
+//			transform.position = new Vector2 (transform.position.x * 100000f, 0f);
+//			Invoke ("mainMenu", 4f);
 		}
 	}
 

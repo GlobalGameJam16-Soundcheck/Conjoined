@@ -28,6 +28,7 @@ public class playerControler : MonoBehaviour {
     public AudioClip fallSound;
 	public AudioClip landSound;
 	public AudioClip floatSound;
+	public AudioClip bossDying;
     AudioSource myAudio;
 
 	public int health;
@@ -46,6 +47,14 @@ public class playerControler : MonoBehaviour {
 	private bool marioDeathJump;
 	private bool canDoubleJump;
 	private bool bossLevel;
+	private bool hitCP;
+	private float camEpsilon;
+	private bool bossCam;
+	public float bossCamY;
+	public float endCamY;
+	private bool bossBeat;
+	private float bossBeatTimer;
+	private bool startCam;
 
 	private int dealDamage;
 	private float origGravScale;
@@ -54,6 +63,7 @@ public class playerControler : MonoBehaviour {
 	private float floatTimeLeft;
 	private float floatDelay;
 	private float origFloatDelay;
+	private float camStartLerpDelay;
 
     // Use this for initialization
     void Awake () {
@@ -72,6 +82,7 @@ public class playerControler : MonoBehaviour {
 		canDoubleJump = true;
 		origPostMagnitude = -1.5f;
 		bossLevel = false;
+		hitCP = false;
 		dealDamage = 1;
 		origGravScale = myRig.gravityScale;
 		floating = false;
@@ -79,6 +90,12 @@ public class playerControler : MonoBehaviour {
 		floatTimeLeft = origFloatTime;
 		origFloatDelay = 0.1f;
 		floatDelay = 0f;
+		camEpsilon = 0.5f;
+		bossCam = false;
+		bossBeatTimer = 0f;
+		startCam = true;
+		bossBeat = false;
+		camStartLerpDelay = 2.3f;
     }
 	
 	// Update is called once per frame
@@ -93,67 +110,75 @@ public class playerControler : MonoBehaviour {
 		}
 		if (health > 0) {
 			moveCameraHeight ();
-			//print(myRig.velocity.x);
-			changeSprite ();
-			myRig.velocity = new Vector2 (myRig.velocity.x * hFirction, myRig.velocity.y);
-			Collider2D[] colliders = Physics2D.OverlapCircleAll (m_GroundCheck.position, 
-				                         k_GroundedRadius, 1 << LayerMask.NameToLayer ("Platforms"));
-			if (colliders.Length < 1) {
-				canJump = false; //colliding with nothing
-				onPlatform = false;
-			}
-			bool canJumpOnOne = false;
-			for (int i = 0; i < colliders.Length; i++) {
-				try {
-					togglePlatformBehavior platScript = colliders[i].GetComponent<togglePlatformBehavior>();
-					if (!platScript.inactive){
-						canJumpOnOne = true;
-						break;
-					}
-				}
-				catch (Exception e){
-					if (colliders [i].gameObject != gameObject) {
-						canJumpOnOne = true;
-						break;
-					}
-				}
-			}
-			if (canJumpOnOne) {
-				canJump = true;
-			}
-			if (Input.GetKeyDown ("up") || Input.GetKeyDown ("w") || Input.GetKeyDown ("space")) {
-				if (canJump || canDoubleJump) {
+			if (!startCam) {
+				
+				//print(myRig.velocity.x);
+				changeSprite ();
+				myRig.velocity = new Vector2 (myRig.velocity.x * hFirction, myRig.velocity.y);
+				Collider2D[] colliders = Physics2D.OverlapCircleAll (m_GroundCheck.position, 
+					                        k_GroundedRadius, 1 << LayerMask.NameToLayer ("Platforms"));
+				if (colliders.Length < 1) {
+					canJump = false; //colliding with nothing
 					onPlatform = false;
-					myAudio.clip = jumpSound;
-//					float yForce = jumpPower * 50f;
-					myRig.velocity = new Vector2 (myRig.velocity.x, getJumpPower ());
-					if (canDoubleJump && !canJump) {
-						canDoubleJump = false;
-						myAudio.clip = doubleJumpSound;
-//						yForce *= 0.75f;
+				}
+				bool canJumpOnOne = false;
+				for (int i = 0; i < colliders.Length; i++) {
+					try {
+						togglePlatformBehavior platScript = colliders [i].GetComponent<togglePlatformBehavior> ();
+						if (!platScript.inactive) {
+							canJumpOnOne = true;
+							break;
+						}
+					} catch (Exception e) {
+						if (colliders [i].gameObject != gameObject) {
+							canJumpOnOne = true;
+							break;
+						}
 					}
+				}
+				if (canJumpOnOne) {
+					canJump = true;
+				}
+				if (Input.GetKeyDown ("up") || Input.GetKeyDown ("w") || Input.GetKeyDown ("space")) {
+					if (canJump || canDoubleJump) {
+						onPlatform = false;
+						if (!bossBeat) {
+							myAudio.clip = jumpSound;
+						}
+//					float yForce = jumpPower * 50f;
+						myRig.velocity = new Vector2 (myRig.velocity.x, getJumpPower ());
+						if (canDoubleJump && !canJump) {
+							canDoubleJump = false;
+							if (!bossBeat) {
+								myAudio.clip = doubleJumpSound;
+							}
+//						yForce *= 0.75f;
+						}
 //					myRig.AddForce (new Vector2 (0f, yForce));
-					myAudio.Play ();
-					canJump = false;
+						if (!bossBeat) {
+							myAudio.Play ();
+						}
+						canJump = false;
+					}
+				} else if ((Input.GetKey ("up") || Input.GetKey ("w")) && myRig.velocity.y < -5f && !canJump) {
+					floatDown ();
+				} else if ((Input.GetKeyUp ("up") || Input.GetKeyUp ("w") && floating)) {
+					unfloatDown ();
 				}
-			} else if ((Input.GetKey ("up") || Input.GetKey ("w")) && myRig.velocity.y < -5f && !canJump) {
-				floatDown ();
-			} else if ((Input.GetKeyUp ("up") || Input.GetKeyUp ("w") && floating)) {
-				unfloatDown ();
-			}
-			if (Input.GetKey ("left") || Input.GetKey ("a")) {
-				if (myRig.velocity.x > -maxRunSpeed) {
-					myRig.velocity = new Vector2 (myRig.velocity.x - runSpeed, myRig.velocity.y);
-				}
-				if (myRig.velocity.x <= -maxRunSpeed) {
-					myRig.velocity = new Vector2 (-maxRunSpeed, myRig.velocity.y);
-				}
-			} else if (Input.GetKey ("right") || Input.GetKey ("d")) {
-				if (myRig.velocity.x < maxRunSpeed) {
-					myRig.velocity = new Vector2 (myRig.velocity.x + runSpeed, myRig.velocity.y);
-				}
-				if (myRig.velocity.x >= maxRunSpeed) {
-					myRig.velocity = new Vector2 (maxRunSpeed, myRig.velocity.y);
+				if (Input.GetKey ("left") || Input.GetKey ("a")) {
+					if (myRig.velocity.x > -maxRunSpeed) {
+						myRig.velocity = new Vector2 (myRig.velocity.x - runSpeed, myRig.velocity.y);
+					}
+					if (myRig.velocity.x <= -maxRunSpeed) {
+						myRig.velocity = new Vector2 (-maxRunSpeed, myRig.velocity.y);
+					}
+				} else if (Input.GetKey ("right") || Input.GetKey ("d")) {
+					if (myRig.velocity.x < maxRunSpeed) {
+						myRig.velocity = new Vector2 (myRig.velocity.x + runSpeed, myRig.velocity.y);
+					}
+					if (myRig.velocity.x >= maxRunSpeed) {
+						myRig.velocity = new Vector2 (maxRunSpeed, myRig.velocity.y);
+					}
 				}
 			}
 		} else {
@@ -176,9 +201,11 @@ public class playerControler : MonoBehaviour {
 				Debug.Log ("floaty");
 //		myRig.gravityScale = origGravScale / origGravScale;
 				myRig.AddForce (new Vector2 (0f, -1f * 7f * myRig.velocity.y));
-				myAudio.clip = floatSound;
-				if (!myAudio.isPlaying) {
-					myAudio.Play ();
+				if (!bossBeat) {
+					myAudio.clip = floatSound;
+					if (!myAudio.isPlaying) {
+						myAudio.Play ();
+					}
 				}
 				floating = true;
 			} else {
@@ -197,13 +224,52 @@ public class playerControler : MonoBehaviour {
 
 	private void moveCameraHeight(){
 		float offset = 0f;
-		if (SceneManager.GetActiveScene ().buildIndex < SceneManager.sceneCountInBuildSettings - 1) {
-			CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, 
-				Mathf.Lerp (CamCamera.transform.position.y, 
-					transform.position.y + offset, 0.75f), 
-				CamCamera.transform.position.z);
+		float speed = 0.75f;
+		if (!bossBeat) {
+			if (startCam) {
+				speed = 0.5f;
+			}
+			if (bossLevel && hitCP) {
+				offset = 8f;
+				speed = 0.1f;
+				camEpsilon = 0.5f;// + offset;
+				bossCam = true;
+			}
+			if (bossCam) {
+				if (Mathf.Abs (bossCamY - CamCamera.transform.position.y) > camEpsilon) {
+					CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, 
+						Mathf.Lerp (CamCamera.transform.position.y, bossCamY, speed), 
+						CamCamera.transform.position.z);
+				}
+			} else {
+				if (startCam) {
+					camStartLerpDelay -= Time.deltaTime;
+					if (camStartLerpDelay <= 0) {
+						Vector3 newPos = Vector3.MoveTowards (CamCamera.transform.position, transform.position, speed);
+						CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, newPos.y, CamCamera.transform.position.z);
+						if (Mathf.Abs (CamCamera.transform.position.y - transform.position.y) < camEpsilon) {
+							startCam = false;
+						}
+					}
+				} else {
+					CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, 
+						Mathf.Lerp (CamCamera.transform.position.y, 
+							transform.position.y + offset, speed), 
+						CamCamera.transform.position.z);
+				}
+			}
+			if (!(SceneManager.GetActiveScene ().buildIndex < SceneManager.sceneCountInBuildSettings - 1)) {
+				bossLevel = true;
+			}
 		} else {
-			bossLevel = true;
+			bossBeatTimer += Time.deltaTime;
+			if (bossBeatTimer >= 3.5f) {
+				speed = 0.005f;
+				CamCamera.transform.position = new Vector3 (CamCamera.transform.position.x, 
+					Mathf.Lerp (CamCamera.transform.position.y, 
+						endCamY, speed), 
+					CamCamera.transform.position.z);
+			}
 		}
 	}
 
@@ -273,19 +339,23 @@ public class playerControler : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
-		if (other.gameObject.tag == "plane") {
-			other.GetComponent<planeDropFireballsBehavior> ().getHit (dealDamage);
-		}
+//		if (other.gameObject.tag == "plane") {
+//			other.GetComponent<planeDropFireballsBehavior> ().getHit (dealDamage);
+//		}
 	}
 
 	void OnCollisionStay2D(Collision2D other){
 //		Debug.Log ("collStay");
-		if (other.gameObject.tag == "targetPlatform") {
+		bool hitACP = other.gameObject.tag == "checkPointPlat";
+		if (hitACP) {
+			hitCP = true;
+		}
+		if (other.gameObject.tag == "targetPlatform" || hitACP) {
 //			platformBehavoir platScript = other.gameObject.GetComponent<platformBehavoir> ();
 			togglePlatformBehavior platScript = other.gameObject.GetComponent<togglePlatformBehavior> ();
 			if (!platScript.inactive) {
 				lastTouchedPost = false;
-				if (Input.GetKeyDown ("down") || Input.GetKeyDown ("s")) {
+				if (Input.GetKeyDown ("down") || Input.GetKeyDown ("s") && !hitACP) {
 					platScript.letPlayerFallThrough ();
 					//fixme play fall through animation?
 				}
@@ -296,10 +366,12 @@ public class playerControler : MonoBehaviour {
 			onPlatform = true;
 		} else if (other.gameObject.tag == "post") {
 			post postScript = other.gameObject.GetComponent<post> ();
-			if (Input.GetKeyDown ("down") || Input.GetKeyDown ("s")) {
-				postScript.letPlayerFallThrough ();
+			if (!postScript.inactive) {
+				if (Input.GetKeyDown ("down") || Input.GetKeyDown ("s")) {
+					postScript.letPlayerFallThrough ();
+				}
+				onPlatform = true;
 			}
-			onPlatform = true;
 		}
 	}
 
@@ -316,29 +388,33 @@ public class playerControler : MonoBehaviour {
 				postJump (other.gameObject.GetComponent<post> ());
 			}
 			floatTimeLeft = origFloatTime;
-		} else if (other.gameObject.tag == "targetPlatform") {
+		} else if (other.gameObject.tag == "targetPlatform" || other.gameObject.tag == "checkPointPlat") {
 			if (!other.gameObject.GetComponent<togglePlatformBehavior> ().inactive) {
 				canDoubleJump = true;
 				onPlatform = true;
-				myAudio.clip = landSound;
-				myAudio.Play ();
+				if (!bossBeat) {
+					myAudio.clip = landSound;
+					myAudio.Play ();
+				}
 				floatTimeLeft = origFloatTime;
 			}
 		} else if (other.gameObject.tag == "bottomEdge") {
 			canDoubleJump = true;
 			onPlatform = true;
-			if (bossLevel) {
+			if (bossLevel && !bossBeat) {
 				getHit (health);
 			}
-			myAudio.clip = landSound;
-			myAudio.Play ();
+			if (!bossBeat) {
+				myAudio.clip = landSound;
+				myAudio.Play ();
+			}
 			floatTimeLeft = origFloatTime;
 		}
 	}
 
 	private void postJump(post postScript){
 		float magnitude = origPostMagnitude;
-		if (postScript.active)
+		if (postScript.active && !postScript.inactive)
 		{
 			if (!lastTouchedPost) {
 				magnitude = origPostMagnitude;
@@ -359,14 +435,16 @@ public class playerControler : MonoBehaviour {
 
 	//used by planes/fireballs/enemies
 	public void getHit(int damage){
-		Debug.Log("player got hit with " + damage);
-		health -= damage;
-		if (health <= 0) {
-			health = 0; //potentially for display purposes
-			Debug.Log("player dies");
-			//fixme play death animation
-		} else {
-			//fixmeplay get hit animation
+		if (!bossBeat) {
+			Debug.Log ("player got hit with " + damage);
+			health -= damage;
+			if (health <= 0) {
+				health = 0; //potentially for display purposes
+				Debug.Log ("player dies");
+				//fixme play death animation
+			} else {
+				//fixmeplay get hit animation
+			}
 		}
 	}
 
@@ -374,17 +452,39 @@ public class playerControler : MonoBehaviour {
 	public void grabOrb(int val, Color color){ //fixme should there be a timer for all toggleValues?
 		toggleValue = val;
 //		mySprite.color = toggleItemColors [toggleValue];
-		mySprite.color = color;
-		for (int i = 0; i < togglePlatforms.Length; i++) {
-			if (i == val) {
-				Debug.Log ("i is val: " + i);
-				foreach (Transform togglePlat in togglePlatforms[i].transform) {
-					togglePlat.GetComponent<togglePlatformBehavior> ().setActive ();
+		if (val != 2) { 
+			mySprite.color = color;
+			for (int i = 0; i < togglePlatforms.Length; i++) {
+				if (i == val) {
+					Debug.Log ("i is val: " + i);
+					foreach (Transform togglePlat in togglePlatforms[i].transform) {
+						togglePlat.GetComponent<togglePlatformBehavior> ().setActive ();
+					}
+				} else {
+					Debug.Log ("i is not val: " + i);
+					foreach (Transform togglePlat in togglePlatforms[i].transform) {
+						try {
+							togglePlat.GetComponent<togglePlatformBehavior> ().setInactive ();
+						} catch (Exception e){
+							togglePlat.GetComponent<post> ().setInactive ();
+						}
+					}
 				}
-			} else {
-				Debug.Log ("i is not val: " + i);
-				foreach (Transform togglePlat in togglePlatforms[i].transform) {
-					togglePlat.GetComponent<togglePlatformBehavior> ().setInactive ();
+			}
+		} else {
+			//fixme is for the boss level stuff
+			mySprite.color = origColor;
+			for (int i = 0; i < togglePlatforms.Length; i++) {
+				if (i == val) {
+					Debug.Log ("i is val: " + i);
+					foreach (Transform togglePost in togglePlatforms[i].transform) {
+						togglePost.GetComponent<post> ().setActive ();
+					}
+				} else {
+					Debug.Log ("i is not val: " + i);
+					foreach (Transform togglePlat in togglePlatforms[i].transform) {
+						togglePlat.GetComponent<togglePlatformBehavior> ().setInactive ();
+					}
 				}
 			}
 		}
@@ -394,6 +494,13 @@ public class playerControler : MonoBehaviour {
 		toggleValue = -1;
 //		mySprite.color = toggleItemColors [toggleValue];
 		mySprite.color = origColor;
+	}
+
+	public void bossDead(){
+		bossBeat = true;
+		CamCamera.GetComponent<AudioSource> ().Stop ();
+		myAudio.clip = bossDying;
+		myAudio.Play ();
 	}
 
 }

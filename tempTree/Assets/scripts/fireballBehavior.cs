@@ -10,12 +10,22 @@ public class fireballBehavior : MonoBehaviour {
 	public float slowerPostMag;
 	public bool floorFire;
 	private AudioSource thud;
+	public bool starterBall;
+	private float timer;
+	private float time;
+
+	void Start(){
+		if (starterBall)
+			justSpawned ();
+	}
 
 	// Use this for initialization
 	public void justSpawned () {
 		lastTouchedPost = false;
 		myRig = GetComponent<Rigidbody2D> ();
 		thud = GetComponent<AudioSource> ();
+		timer = 0.5f;
+		time = 0.0f;
 //		addXForce (30f);
 	}
 
@@ -45,22 +55,24 @@ public class fireballBehavior : MonoBehaviour {
 //			myRig.AddForce (forceVector, ForceMode2D.Impulse);
 //				addXYForce (15f, yForce);
 				lastTouchedPost = false;
-			} else if (other.gameObject.tag == "post") {
+			} 
+			else if (other.gameObject.tag == "post") {
 				thud.Play ();
 				Debug.Log ("hitting post");
 				post postScript = other.gameObject.GetComponent<post> ();
 //				float magnitude = origPostMagnitude;
-				if (other.gameObject.GetComponent<post> ().active) {
+				if (postScript.togglePost && !postScript.inactive) {
 					if (!lastTouchedPost) {
 						postScript.active = false;
 						lastTouchedPost = true;
 						Debug.Log (myRig.velocity.y);
-						addXYForce (Random.Range(-10f, 10f), - 150f * myRig.velocity.y);
+						addXYForce (0f, - 600f * myRig.velocity.y);
 						Destroy (gameObject, 2f);
 						postScript.playSound ();
 					}
 				}
-			} else if (other.gameObject.tag == "fireball") {
+			} 
+			else if (other.gameObject.tag == "fireball") {
 				lastTouchedPost = false;
 //				getDestroyed ();
 			}
@@ -70,7 +82,7 @@ public class fireballBehavior : MonoBehaviour {
 	private void getDestroyed(){
 		float destroyDelay = 2f;
 		Destroy(gameObject, destroyDelay);
-		transform.position = new Vector2 (transform.position.x * 10000000f, transform.position.y);
+		transform.position = new Vector2 ((transform.position.x + 1f) * 10000000f, transform.position.y);
 	}
 
 	void OnTriggerStay2D(Collider2D other){
@@ -78,7 +90,7 @@ public class fireballBehavior : MonoBehaviour {
 //			Debug.Log ("hitting post");
 //			post postScript = other.gameObject.GetComponent<post> ();
 //			float magnitude = origPostMagnitude;
-//			if (other.gameObject.GetComponent<post> ().active) {
+//			if (postScript.togglePost && !postScript.inactive) {
 //				if (!lastTouchedPost) {
 //					magnitude = origPostMagnitude;
 //				} else {
@@ -95,7 +107,8 @@ public class fireballBehavior : MonoBehaviour {
 //				addXForce (20f);
 //			}
 //		}
-		if (other.gameObject.tag == "plane"){
+		time += Time.deltaTime;
+		if (other.gameObject.tag == "plane" && time > timer){
 			other.gameObject.GetComponent<planeDropFireballsBehavior> ().getHit (damage);
 			getDestroyed ();
 		}

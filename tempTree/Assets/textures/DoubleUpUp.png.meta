@@ -1,0 +1,108 @@
+fileFormatVersion: 2
+guid: 12a8d0ebbedd447cdafc4124c28c1d22
+timeCreated: 1458876648
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: DoubleUpUp_0
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: 0
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: DoubleUpUp_0
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 5
+        width: 758
+        height: 62
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -318, y: 22}
+        - {x: -357, y: 22}
+        - {x: -364, y: 21}
+        - {x: -364, y: -23}
+        - {x: -363, y: -26}
+        - {x: -324, y: -26}
+        - {x: -316, y: -22}
+        - {x: -316, y: 18}
+      - - {x: -303, y: 22}
+        - {x: -311, y: 18}
+        - {x: -311, y: -21}
+        - {x: -307, y: -26}
+        - {x: -267, y: -26}
+        - {x: -263, y: -24}
+        - {x: -263, y: 15}
+        - {x: -264, y: 22}
+      - - {x: -234, y: 20}
+        - {x: -234, y: -20}
+        - {x: -233, y: -24}
+        - {x: -147, y: -24}
+        - {x: -147, y: 20}
+      - - {x: -102, y: 20}
+        - {x: -105, y: 17}
+        - {x: -105, y: -21}
+        - {x: -102, y: -24}
+        - {x: -68, y: -24}
+        - {x: -61, y: -16}
+        - {x: -61, y: 12}
+        - {x: -69, y: 20}
+      - - {x: -61, y: 20}
+        - {x: -61, y: -24}
+        - {x: 155, y: -24}
+        - {x: 155, y: 20}
+      - - {x: 203, y: 20}
+        - {x: 198, y: 12}
+        - {x: 198, y: -24}
+        - {x: 362, y: -24}
+        - {x: 371, y: -8}
+        - {x: 371, y: 20}
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

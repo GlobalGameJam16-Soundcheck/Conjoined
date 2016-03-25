@@ -21,6 +21,9 @@ public class post : MonoBehaviour {
 
 	private AudioSource trampSound;
 
+	public bool inactive { get; set; }
+	public bool togglePost;
+
 	// Use this for initialization
 	void Start () {
         mySprite = gameObject.GetComponent<SpriteRenderer>();
@@ -39,6 +42,11 @@ public class post : MonoBehaviour {
 		pe2d = GetComponent<PlatformEffector2D> ();
 		playerLayer = (1 << LayerMask.NameToLayer ("Player"));
 		trampSound = GetComponent<AudioSource> ();
+		inactive = false;
+		if (togglePost) {
+			setInactive ();
+			reloadTime = 3f;
+		}
 	}
 	
 	// Update is called once per frame
@@ -49,7 +57,7 @@ public class post : MonoBehaviour {
             Invoke("reload", reloadTime);
             reloading = true;
         }
-        if (active)
+		if ((active && !togglePost) || (togglePost && !inactive))
         {
             mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b);
 			for (int i = 0; i < bgSpriteRenderers.Length; i++) {
@@ -94,6 +102,28 @@ public class post : MonoBehaviour {
 //		if (!trampSound.isPlaying) {
 		trampSound.Play ();
 //		}
+	}
+
+	public void setActive(){
+		SpriteRenderer solidWhiteSprite;
+		mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b, 1.0f);
+		for (int i = 0; i < bgSpriteRenderers.Length; i++) {
+			solidWhiteSprite = bgSpriteRenderers [i];
+			solidWhiteSprite.color = new Color(solidWhiteSprite.color.r, solidWhiteSprite.color.g, solidWhiteSprite.color.b, bgSpriteAlphas[i] * 0.5f);
+		}
+		pe2d.colliderMask = -1;
+		inactive = false;
+	}
+
+	public void setInactive(){
+		SpriteRenderer solidWhiteSprite;
+		mySprite.color = new Color(mySprite.color.r, mySprite.color.g, mySprite.color.b, 0.2f);
+		for (int i = 0; i < bgSpriteRenderers.Length; i++) {
+			solidWhiteSprite = bgSpriteRenderers [i];
+			solidWhiteSprite.color = new Color(solidWhiteSprite.color.r, solidWhiteSprite.color.g, solidWhiteSprite.color.b, bgSpriteAlphas[i] * 0.5f);
+		}
+		pe2d.colliderMask = 0;
+		inactive = true;
 	}
 
 }
