@@ -473,9 +473,9 @@ public class playerControler : MonoBehaviour {
 				} else {
 					Debug.Log ("i is not val: " + i);
 					foreach (Transform togglePlat in togglePlatforms[i].transform) {
-						try {
+						if (togglePlat.gameObject.tag == "targetPlatform") {
 							togglePlat.GetComponent<togglePlatformBehavior> ().setInactive ();
-						} catch (Exception e){
+						} else {
 							togglePlat.GetComponent<post> ().setInactive ();
 						}
 					}

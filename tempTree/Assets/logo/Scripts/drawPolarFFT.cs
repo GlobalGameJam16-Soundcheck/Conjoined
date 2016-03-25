@@ -27,6 +27,10 @@ public class drawPolarFFT : MonoBehaviour
 
     void Update()
     {
+		if (Input.GetKeyDown("space"))
+		{
+			goToNextLevel (1);
+		}
 		if (!started) {
 			timer += Time.deltaTime;
 		}
@@ -53,7 +57,7 @@ public class drawPolarFFT : MonoBehaviour
 				if (started) {
 					timer += Time.deltaTime;
 					if (timer >= afterDelay) {
-						SceneManager.LoadScene ("startScreen");
+						goToNextLevel (1);
 					}
 				}
 			}
@@ -64,4 +68,13 @@ public class drawPolarFFT : MonoBehaviour
     {
         return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
     }
+
+	private void goToNextLevel(int j){
+		int i = SceneManager.GetActiveScene().buildIndex;
+		if (0 <= i + j && i + j < SceneManager.sceneCountInBuildSettings) {
+			SceneManager.LoadScene (i + j);
+		} else {
+			Debug.Log ("this is the last level in teh scene");
+		}
+	}
 }

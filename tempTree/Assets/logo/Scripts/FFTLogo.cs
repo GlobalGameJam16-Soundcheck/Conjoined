@@ -23,10 +23,5 @@ public class FFTLogo : MonoBehaviour {
 			fade.timeToFade = transform.GetChild (0).GetComponent<AudioSource> ().clip.length;
 			fade.startFading = true;
 		}
-        if (Input.GetKeyDown("space") == true)
-        {
-            int i = Application.loadedLevel;
-            Application.LoadLevel(i + 1);
-        }
 	}
 }

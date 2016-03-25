@@ -16,7 +16,7 @@ public class togglePlatformBehavior : MonoBehaviour {
 //	public int value;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		mySprite = GetComponent<SpriteRenderer> ();
 		playerFallingThrough = false;
 		timer = 0f;
