@@ -228,7 +228,9 @@ public class playerControler : MonoBehaviour {
 		if (!bossBeat) {
 			if (startCam) {
 				speed = 0.5f;
-				if (Input.GetKeyDown ("space")) {
+				if (Input.GetKeyDown ("space") || Input.GetKeyDown("d") || Input.GetKeyDown("w") || Input.GetKeyDown("up") 
+					|| Input.GetKeyDown("a") || Input.GetKeyDown("s") || Input.GetKeyDown("down") || Input.GetKeyDown("left")
+					|| Input.GetKeyDown("right")) {
 					startCam = false;
 					foreach (Transform startText in CamCamera.transform) {
 						if (startText.gameObject.activeInHierarchy) {
